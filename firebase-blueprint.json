@@ -1,0 +1,60 @@
+{
+  "entities": {
+    "PortfolioContent": {
+      "title": "Portfolio Content",
+      "description": "Dynamic portfolio data including profile, services, skills, projects, experience, education, certifications, and contact topics",
+      "type": "object",
+      "properties": {
+        "personalInfo": { "type": "object", "description": "Personal details, bio, links, and contact info" },
+        "keyMetrics": { "type": "array", "description": "Key career metrics and achievements" },
+        "services": { "type": "array", "description": "Offered engineering services" },
+        "skillCategories": { "type": "array", "description": "Categorized technical skills" },
+        "experiences": { "type": "array", "description": "Work history and professional experience" },
+        "projects": { "type": "array", "description": "Portfolio projects and case studies" },
+        "educationList": { "type": "array", "description": "Academic degrees and education details" },
+        "certifications": { "type": "array", "description": "Professional certifications" },
+        "languages": { "type": "array", "description": "Language proficiencies" },
+        "contactTopics": { "type": "array", "description": "Inquiry topics available on the contact form" },
+        "updatedAt": { "type": "string", "description": "ISO timestamp of last update" }
+      },
+      "required": ["personalInfo", "services", "projects"]
+    },
+    "PortfolioCV": {
+      "title": "Portfolio CV / Resume",
+      "description": "Custom uploaded resume and PDF document data",
+      "type": "object",
+      "properties": {
+        "customCvFileName": { "type": "string", "description": "Filename of uploaded CV" },
+        "customCvDataUri": { "type": "string", "description": "Base64 data URI of the resume PDF" },
+        "updatedAt": { "type": "string", "description": "ISO timestamp of last update" }
+      }
+    },
+    "ContactMessage": {
+      "title": "Contact Inquiries",
+      "description": "Messages sent by visitors via the contact form",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "description": "Sender name" },
+        "email": { "type": "string", "description": "Sender email" },
+        "subject": { "type": "string", "description": "Inquiry topic / subject" },
+        "message": { "type": "string", "description": "Message content" },
+        "createdAt": { "type": "string", "description": "Creation timestamp" }
+      },
+      "required": ["name", "email", "message"]
+    }
+  },
+  "firestore": {
+    "/portfolio/content": {
+      "entity": "PortfolioContent",
+      "description": "Global portfolio configuration and content document"
+    },
+    "/portfolio/cv": {
+      "entity": "PortfolioCV",
+      "description": "Custom uploaded resume document"
+    },
+    "/contact_messages/{messageId}": {
+      "entity": "ContactMessage",
+      "description": "Inquiries submitted by potential clients"
+    }
+  }
+}

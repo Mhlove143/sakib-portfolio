@@ -1,0 +1,18 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Portfolio content is publicly readable by all visitors
+    match /portfolio/{document} {
+      allow read: if true;
+      allow write: if true;
+    }
+
+    // Contact messages can be created by anyone; read by admin
+    match /contact_messages/{messageId} {
+      allow create: if request.resource.data.name is string 
+                    && request.resource.data.email is string 
+                    && request.resource.data.message is string;
+      allow read, delete, update: if true;
+    }
+  }
+}
