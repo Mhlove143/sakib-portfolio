@@ -41,6 +41,15 @@
         "createdAt": { "type": "string", "description": "Creation timestamp" }
       },
       "required": ["name", "email", "message"]
+    },
+    "PortfolioUsers": {
+      "title": "Portfolio Admin Users",
+      "description": "Authorized administrators and system users for CMS access",
+      "type": "object",
+      "properties": {
+        "users": { "type": "array", "description": "List of admin users with credentials and roles" },
+        "updatedAt": { "type": "string", "description": "ISO timestamp of last update" }
+      }
     }
   },
   "firestore": {
@@ -51,6 +60,10 @@
     "/portfolio/cv": {
       "entity": "PortfolioCV",
       "description": "Custom uploaded resume document"
+    },
+    "/portfolio/users": {
+      "entity": "PortfolioUsers",
+      "description": "Admin user profiles, credentials and role access configuration"
     },
     "/contact_messages/{messageId}": {
       "entity": "ContactMessage",

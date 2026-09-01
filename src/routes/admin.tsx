@@ -40,9 +40,12 @@ import {
   Image as ImageIcon,
   Copy,
   Github,
+  Settings,
+  Users,
 } from "lucide-react";
 import portraitAsset from "@/assets/sakib-portrait.png.asset.json";
 import { usePortfolio } from "@/context/PortfolioContext";
+import { AdminSettingsModal } from "@/components/admin/AdminSettingsModal";
 import { toast } from "sonner";
 import {
   type Service,
@@ -116,6 +119,10 @@ export function AdminPage() {
     resetToDefaults,
     exportDataJson,
     importDataJson,
+    adminUsers,
+    currentUser,
+    setCurrentUser,
+    validateAdminLogin,
   } = usePortfolio();
 
   // Authentication State - Stored in sessionStorage only so localStorage remains completely clean
@@ -134,6 +141,19 @@ export function AdminPage() {
   const [authError, setAuthError] = useState("");
 
   const [activeTab, setActiveTab] = useState<TabType>("profile");
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+
+  const isSuperAdmin = currentUser?.role === "superadmin" || currentUser?.username === "mhlove143";
+  const isEditor = currentUser?.role === "editor";
+  const isAdmin = currentUser?.role === "admin";
+
+  // Content Editor Role Restriction: Automatically route to Experience if current tab is restricted
+  useEffect(() => {
+    if (isEditor && ["profile", "cv", "topics", "messages"].includes(activeTab)) {
+      setActiveTab("experience");
+    }
+  }, [isEditor, activeTab]);
+
   const [searchQuery, setSearchQuery] = useState("");
   const [newTopicInput, setNewTopicInput] = useState("");
   const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -150,16 +170,8 @@ export function AdminPage() {
 
   const handleLogin = (e: FormEvent) => {
     e.preventDefault();
-    const cleanId = loginIdentifier.trim();
-    const cleanPass = loginPassword;
-
-    // Allowed credentials: mhlove143 or email and $@kib$@rdar
-    if (
-      (cleanId === "mhlove143" ||
-        cleanId.toLowerCase() === "mhlove143" ||
-        cleanId.toLowerCase() === "sakibsardar.official@gmail.com") &&
-      cleanPass === "$@kib$@rdar"
-    ) {
+    const result = validateAdminLogin(loginIdentifier, loginPassword);
+    if (result.success) {
       setIsAuthenticated(true);
       setAuthError("");
       try {
@@ -167,17 +179,19 @@ export function AdminPage() {
       } catch {
         // ignore
       }
-      toast.success("Welcome back, Sakib Sardar!");
+      toast.success(`Welcome back, ${result.user?.name || "Sakib Sardar"}!`);
     } else {
-      setAuthError("Invalid username or password. Please verify your credentials.");
+      setAuthError(result.error || "Invalid username or password. Please verify your credentials.");
       toast.error("Authentication failed. Invalid username or password.");
     }
   };
 
   const handleLogout = () => {
     setIsAuthenticated(false);
+    setCurrentUser(null);
     try {
       sessionStorage.removeItem(ADMIN_STORAGE_AUTH_KEY);
+      sessionStorage.removeItem("sakib_portfolio_admin_user_v1");
       localStorage.removeItem("sakib_portfolio_admin_auth_v1");
     } catch {
       // ignore
@@ -716,43 +730,58 @@ export function AdminPage() {
                   <span>Live Site</span>
                 </Link>
 
-                <button
-                  onClick={handleExport}
-                  className="inline-flex items-center gap-1.5 rounded-full border border-border/80 bg-card px-3 py-1.5 text-xs font-semibold text-foreground transition-colors hover:border-accent"
-                  title="Download Data Backup"
-                >
-                  <Download className="h-3.5 w-3.5 text-accent" />
-                  <span className="hidden sm:inline">Export</span>
-                </button>
+                {!isEditor && (
+                  <>
+                    <button
+                      onClick={handleExport}
+                      className="inline-flex items-center gap-1.5 rounded-full border border-border/80 bg-card px-3 py-1.5 text-xs font-semibold text-foreground transition-colors hover:border-accent"
+                      title="Download Data Backup"
+                    >
+                      <Download className="h-3.5 w-3.5 text-accent" />
+                      <span className="hidden sm:inline">Export</span>
+                    </button>
+
+                    <button
+                      onClick={() => jsonImportRef.current?.click()}
+                      className="inline-flex items-center gap-1.5 rounded-full border border-border/80 bg-card px-3 py-1.5 text-xs font-semibold text-foreground transition-colors hover:border-accent"
+                      title="Import JSON Backup"
+                    >
+                      <Upload className="h-3.5 w-3.5 text-accent" />
+                      <span className="hidden sm:inline">Import</span>
+                    </button>
+                    <input
+                      type="file"
+                      ref={jsonImportRef}
+                      onChange={handleImport}
+                      accept=".json"
+                      className="hidden"
+                    />
+                  </>
+                )}
+
+                {isSuperAdmin && (
+                  <button
+                    onClick={() => {
+                      if (window.confirm("Are you sure you want to reset all data to default values?")) {
+                        resetToDefaults();
+                        toast.success("Reset all portfolio data to default!");
+                      }
+                    }}
+                    className="inline-flex items-center gap-1.5 rounded-full border border-rose-500/30 bg-rose-500/10 px-3 py-1.5 text-xs font-semibold text-rose-500 transition-colors hover:bg-rose-500/20"
+                    title="Reset everything to factory defaults"
+                  >
+                    <RotateCcw className="h-3.5 w-3.5" />
+                    <span className="hidden sm:inline">Reset Defaults</span>
+                  </button>
+                )}
 
                 <button
-                  onClick={() => jsonImportRef.current?.click()}
-                  className="inline-flex items-center gap-1.5 rounded-full border border-border/80 bg-card px-3 py-1.5 text-xs font-semibold text-foreground transition-colors hover:border-accent"
-                  title="Import JSON Backup"
+                  onClick={() => setIsSettingsOpen(true)}
+                  className="inline-flex items-center gap-1.5 rounded-full border border-primary/40 bg-primary/10 px-3.5 py-1.5 text-xs font-bold text-primary transition-all hover:bg-primary/20 hover:border-primary shadow-sm"
+                  title="Admin & User Settings (User Create, Info, Delete, Password)"
                 >
-                  <Upload className="h-3.5 w-3.5 text-accent" />
-                  <span className="hidden sm:inline">Import</span>
-                </button>
-                <input
-                  type="file"
-                  ref={jsonImportRef}
-                  onChange={handleImport}
-                  accept=".json"
-                  className="hidden"
-                />
-
-                <button
-                  onClick={() => {
-                    if (window.confirm("Are you sure you want to reset all data to default values?")) {
-                      resetToDefaults();
-                      toast.success("Reset all portfolio data to default!");
-                    }
-                  }}
-                  className="inline-flex items-center gap-1.5 rounded-full border border-rose-500/30 bg-rose-500/10 px-3 py-1.5 text-xs font-semibold text-rose-500 transition-colors hover:bg-rose-500/20"
-                  title="Reset everything to factory defaults"
-                >
-                  <RotateCcw className="h-3.5 w-3.5" />
-                  <span className="hidden sm:inline">Reset Defaults</span>
+                  <Settings className="h-3.5 w-3.5" />
+                  <span>Settings</span>
                 </button>
 
                 <button
@@ -770,18 +799,22 @@ export function AdminPage() {
             <div className="mx-auto max-w-[1500px] overflow-x-auto px-4 pb-2 sm:px-8">
               <div className="flex items-center gap-1.5 py-1">
                 {[
-                  { id: "profile", label: "Profile & Info", icon: User },
-                  { id: "cv", label: "Curriculum Vitae", icon: FileText },
-                  {
-                    id: "topics",
-                    label: `Contact Topics (${contactTopics?.length || 0})`,
-                    icon: MessageSquarePlus,
-                  },
-                  {
-                    id: "messages",
-                    label: `Inquiries (${contactMessages?.length || 0})`,
-                    icon: MessageSquare,
-                  },
+                  ...(!isEditor
+                    ? [
+                        { id: "profile", label: "Profile & Info", icon: User },
+                        { id: "cv", label: "Curriculum Vitae", icon: FileText },
+                        {
+                          id: "topics",
+                          label: `Contact Topics (${contactTopics?.length || 0})`,
+                          icon: MessageSquarePlus,
+                        },
+                        {
+                          id: "messages",
+                          label: `Inquiries (${contactMessages?.length || 0})`,
+                          icon: MessageSquare,
+                        },
+                      ]
+                    : []),
                   { id: "experience", label: `Experience (${experiences.length})`, icon: Briefcase },
                   {
                     id: "skills",
@@ -3731,6 +3764,13 @@ export function AdminPage() {
           </div>
         </div>
       )}
+
+      {/* Admin Settings & User Management Modal */}
+      <AdminSettingsModal
+        isOpen={isSettingsOpen}
+        onClose={() => setIsSettingsOpen(false)}
+        onLogout={handleLogout}
+      />
         </>
       )}
     </div>

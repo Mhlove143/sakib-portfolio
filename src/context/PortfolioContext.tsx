@@ -74,6 +74,33 @@ export interface ContactMessageItem {
   createdAt: string;
 }
 
+export type AdminRole = "superadmin" | "admin" | "editor";
+
+export interface AdminUser {
+  id: string;
+  username: string;
+  name: string;
+  email: string;
+  role: AdminRole;
+  passwordPlain?: string;
+  createdAt: string;
+  lastLogin?: string;
+  avatarBg?: string;
+}
+
+export const defaultAdminUsers: AdminUser[] = [
+  {
+    id: "user_primary_sakib",
+    username: "mhlove143",
+    name: "Sakib Sardar",
+    email: "sakibsardar.official@gmail.com",
+    role: "superadmin",
+    passwordPlain: "$@kib$@rdar",
+    createdAt: "2024-01-01T00:00:00.000Z",
+    avatarBg: "from-emerald-500 to-teal-700",
+  },
+];
+
 export interface PortfolioContextType {
   data: PortfolioDataType;
   personalInfo: PersonalInfoType;
@@ -91,6 +118,17 @@ export interface PortfolioContextType {
   isLoaded: boolean;
   isSyncing: boolean;
   isFirebaseConnected: boolean;
+
+  // Admin Users & Auth Management
+  adminUsers: AdminUser[];
+  currentUser: AdminUser | null;
+  setCurrentUser: (user: AdminUser | null) => void;
+  addAdminUser: (user: Omit<AdminUser, "id" | "createdAt">) => Promise<{ success: boolean; error?: string }>;
+  updateAdminUser: (id: string, updated: Partial<AdminUser>) => Promise<{ success: boolean; error?: string }>;
+  deleteAdminUser: (id: string) => Promise<{ success: boolean; error?: string }>;
+  changeUserPassword: (id: string, oldPass: string, newPass: string) => Promise<{ success: boolean; error?: string }>;
+  resetUserPassword: (id: string, newPass: string) => Promise<{ success: boolean; error?: string }>;
+  validateAdminLogin: (identifier: string, pass: string) => { success: boolean; user?: AdminUser; error?: string };
 
   // Contact Messages & Topics CRUD
   contactMessages: ContactMessageItem[];
@@ -194,11 +232,34 @@ const PortfolioContext = createContext<PortfolioContextType | null>(null);
 export function PortfolioProvider({ children }: { children: React.ReactNode }) {
   // Pure in-memory state initialized directly from defaults and synced in real-time with Firestore DB
   const [data, setData] = useState<PortfolioDataType>(defaultData);
+  const [adminUsers, setAdminUsers] = useState<AdminUser[]>(defaultAdminUsers);
+  const [currentUser, setCurrentUser] = useState<AdminUser | null>(() => {
+    try {
+      const stored = sessionStorage.getItem("sakib_portfolio_admin_user_v1");
+      return stored ? JSON.parse(stored) : null;
+    } catch {
+      return null;
+    }
+  });
 
   const [isLoaded, setIsLoaded] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
   const [isFirebaseConnected, setIsFirebaseConnected] = useState(false);
   const [contactMessages, setContactMessages] = useState<ContactMessageItem[]>([]);
+
+  // Update sessionStorage whenever currentUser changes
+  const handleSetCurrentUser = useCallback((user: AdminUser | null) => {
+    setCurrentUser(user);
+    try {
+      if (user) {
+        sessionStorage.setItem("sakib_portfolio_admin_user_v1", JSON.stringify(user));
+      } else {
+        sessionStorage.removeItem("sakib_portfolio_admin_user_v1");
+      }
+    } catch {
+      // ignore
+    }
+  }, []);
 
   // Purge any legacy localStorage cache on startup to ensure pure database persistence
   useEffect(() => {
@@ -432,6 +493,400 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
       if (unsubscribeMessages) unsubscribeMessages();
     };
   }, [saveToFirestore]);
+
+  // Function to save Admin Users list directly to Firestore /portfolio/users
+  const saveUsersToFirestore = useCallback(async (usersToSave: AdminUser[]) => {
+    try {
+      const usersRef = doc(db, "portfolio", "users");
+      await setDoc(usersRef, {
+        users: usersToSave,
+        updatedAt: new Date().toISOString(),
+      }, { merge: true });
+    } catch (err) {
+      console.error("Failed to persist admin users to Firestore:", err);
+    }
+  }, []);
+
+  // 5. Listen to Admin Users collection / doc
+  useEffect(() => {
+    let unsubscribe: (() => void) | null = null;
+    try {
+      const usersRef = doc(db, "portfolio", "users");
+      unsubscribe = onSnapshot(usersRef, (docSnap) => {
+        if (docSnap.exists()) {
+          const uData = docSnap.data();
+          if (Array.isArray(uData.users) && uData.users.length > 0) {
+            setAdminUsers(uData.users);
+          }
+        } else {
+          // Initialize default admin user if doc doesn't exist
+          setDoc(usersRef, {
+            users: defaultAdminUsers,
+            updatedAt: new Date().toISOString(),
+          }, { merge: true });
+        }
+      }, (err) => {
+        console.error("Firestore users subscription notice:", err);
+      });
+    } catch (err) {
+      console.error("Firestore users initialization error:", err);
+    }
+
+    return () => {
+      if (unsubscribe) unsubscribe();
+    };
+  }, []);
+
+  // Admin User Authentication Validator
+  const validateAdminLogin = useCallback((identifier: string, pass: string): { success: boolean; user?: AdminUser; error?: string } => {
+    const cleanId = identifier.trim().toLowerCase();
+    const cleanPass = pass;
+
+    if (!cleanId || !cleanPass) {
+      return { success: false, error: "Username/Email and Password are required." };
+    }
+
+    // Check against current loaded admin users
+    const matchedUser = adminUsers.find(
+      (u) =>
+        u.username.toLowerCase() === cleanId ||
+        u.email.toLowerCase() === cleanId
+    );
+
+    if (matchedUser) {
+      // Check password
+      const isPassValid =
+        (matchedUser.passwordPlain && matchedUser.passwordPlain === cleanPass) ||
+        (matchedUser.username.toLowerCase() === "mhlove143" && cleanPass === "$@kib$@rdar");
+
+      if (isPassValid) {
+        const updatedUser: AdminUser = {
+          ...matchedUser,
+          lastLogin: new Date().toISOString(),
+        };
+        handleSetCurrentUser(updatedUser);
+
+        // Update last login in Firestore in background
+        const updatedList = adminUsers.map((u) => (u.id === matchedUser.id ? updatedUser : u));
+        setAdminUsers(updatedList);
+        saveUsersToFirestore(updatedList);
+
+        return { success: true, user: updatedUser };
+      } else {
+        return { success: false, error: "Invalid password. Please verify your credentials." };
+      }
+    }
+
+    // Master fallback for mhlove143 / sakibsardar.official@gmail.com
+    if (
+      (cleanId === "mhlove143" || cleanId === "sakibsardar.official@gmail.com") &&
+      cleanPass === "$@kib$@rdar"
+    ) {
+      const fallbackUser: AdminUser = defaultAdminUsers[0];
+      handleSetCurrentUser(fallbackUser);
+      return { success: true, user: fallbackUser };
+    }
+
+    return { success: false, error: "User not found. Please check your username or email." };
+  }, [adminUsers, handleSetCurrentUser, saveUsersToFirestore]);
+
+  // Create / Add New Admin User
+  const addAdminUser = async (userPayload: Omit<AdminUser, "id" | "createdAt">): Promise<{ success: boolean; error?: string }> => {
+    try {
+      const isActorSuperAdmin =
+        currentUser?.role === "superadmin" ||
+        currentUser?.username === "mhlove143";
+      const isActorAdmin = currentUser?.role === "admin";
+
+      if (!isActorSuperAdmin && !isActorAdmin) {
+        return {
+          success: false,
+          error: "Permission denied: Content Editors cannot create user accounts.",
+        };
+      }
+
+      if (isActorAdmin && userPayload.role !== "editor") {
+        return {
+          success: false,
+          error: "Permission denied: Administrators can only create Content Editor accounts.",
+        };
+      }
+
+      const cleanUsername = userPayload.username.trim().toLowerCase();
+      const cleanEmail = userPayload.email.trim().toLowerCase();
+
+      if (!cleanUsername) {
+        return { success: false, error: "Username is required." };
+      }
+      if (!userPayload.name.trim()) {
+        return { success: false, error: "Full Name is required." };
+      }
+      if (!cleanEmail || !cleanEmail.includes("@")) {
+        return { success: false, error: "Valid email address is required." };
+      }
+      if (!userPayload.passwordPlain || userPayload.passwordPlain.length < 4) {
+        return { success: false, error: "Password must be at least 4 characters." };
+      }
+
+      // Check duplicates
+      const usernameExists = adminUsers.some((u) => u.username.toLowerCase() === cleanUsername);
+      if (usernameExists) {
+        return { success: false, error: `Username "${userPayload.username}" is already taken.` };
+      }
+
+      const emailExists = adminUsers.some((u) => u.email.toLowerCase() === cleanEmail);
+      if (emailExists) {
+        return { success: false, error: `An account with email "${userPayload.email}" already exists.` };
+      }
+
+      const avatarGradients = [
+        "from-emerald-500 to-teal-700",
+        "from-cyan-500 to-blue-600",
+        "from-indigo-500 to-purple-600",
+        "from-rose-500 to-pink-600",
+        "from-amber-500 to-orange-600",
+      ];
+      const randomBg = avatarGradients[Math.floor(Math.random() * avatarGradients.length)];
+
+      const newUser: AdminUser = {
+        id: `usr_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+        username: userPayload.username.trim(),
+        name: userPayload.name.trim(),
+        email: userPayload.email.trim(),
+        role: userPayload.role || "admin",
+        passwordPlain: userPayload.passwordPlain,
+        createdAt: new Date().toISOString(),
+        avatarBg: randomBg,
+      };
+
+      const updatedList = [...adminUsers, newUser];
+      setAdminUsers(updatedList);
+      await saveUsersToFirestore(updatedList);
+      return { success: true };
+    } catch (err: any) {
+      console.error("Error adding admin user:", err);
+      return { success: false, error: err?.message || "Failed to create user." };
+    }
+  };
+
+  // Update existing user profile/role
+  const updateAdminUser = async (id: string, partial: Partial<AdminUser>): Promise<{ success: boolean; error?: string }> => {
+    try {
+      const targetUser = adminUsers.find((u) => u.id === id);
+      if (!targetUser) {
+        return { success: false, error: "User not found." };
+      }
+
+      // Super Admin Protection: Non-superadmins cannot modify a Super Admin's details or role
+      const isActorSuperAdmin =
+        currentUser?.role === "superadmin" ||
+        currentUser?.username === "mhlove143";
+
+      if (targetUser.role === "superadmin" && !isActorSuperAdmin) {
+        return {
+          success: false,
+          error: "Permission denied: Only the Super Administrator can modify Super Admin accounts.",
+        };
+      }
+
+      // Non-superadmins cannot escalate someone to superadmin
+      if (partial.role === "superadmin" && !isActorSuperAdmin) {
+        return {
+          success: false,
+          error: "Permission denied: Only a Super Administrator can assign the Super Admin role.",
+        };
+      }
+
+      if (partial.username && partial.username.trim().toLowerCase() !== targetUser.username.toLowerCase()) {
+        const usernameExists = adminUsers.some(
+          (u) => u.id !== id && u.username.toLowerCase() === partial.username!.trim().toLowerCase()
+        );
+        if (usernameExists) {
+          return { success: false, error: "Username already in use by another account." };
+        }
+      }
+
+      if (partial.email && partial.email.trim().toLowerCase() !== targetUser.email.toLowerCase()) {
+        const emailExists = adminUsers.some(
+          (u) => u.id !== id && u.email.toLowerCase() === partial.email!.trim().toLowerCase()
+        );
+        if (emailExists) {
+          return { success: false, error: "Email already in use by another account." };
+        }
+      }
+
+      const updatedList = adminUsers.map((u) => {
+        if (u.id === id) {
+          return { ...u, ...partial };
+        }
+        return u;
+      });
+
+      setAdminUsers(updatedList);
+      if (currentUser && currentUser.id === id) {
+        handleSetCurrentUser({ ...currentUser, ...partial });
+      }
+      await saveUsersToFirestore(updatedList);
+      return { success: true };
+    } catch (err: any) {
+      return { success: false, error: err?.message || "Failed to update user." };
+    }
+  };
+
+  // Delete an Admin User
+  const deleteAdminUser = async (id: string): Promise<{ success: boolean; error?: string }> => {
+    try {
+      const target = adminUsers.find((u) => u.id === id);
+      if (!target) {
+        return { success: false, error: "User not found." };
+      }
+
+      const isActorSuperAdmin =
+        currentUser?.role === "superadmin" ||
+        currentUser?.username === "mhlove143";
+
+      // Super Admin Protection: Non-superadmins cannot delete a Super Admin
+      if (target.role === "superadmin" && !isActorSuperAdmin) {
+        return {
+          success: false,
+          error: "Permission denied: Administrators cannot delete a Super Administrator account.",
+        };
+      }
+
+      // Check if trying to delete the only superadmin
+      const superAdmins = adminUsers.filter((u) => u.role === "superadmin");
+      if (target.role === "superadmin" && superAdmins.length <= 1) {
+        return { success: false, error: "Cannot delete the primary Super Administrator account." };
+      }
+
+      const updatedList = adminUsers.filter((u) => u.id !== id);
+      setAdminUsers(updatedList);
+
+      // If user deleted themselves, clear session
+      if (currentUser && currentUser.id === id) {
+        handleSetCurrentUser(null);
+      }
+
+      await saveUsersToFirestore(updatedList);
+      return { success: true };
+    } catch (err: any) {
+      return { success: false, error: err?.message || "Failed to delete user." };
+    }
+  };
+
+  // Change Password for a user (Requires matching old password)
+  const changeUserPassword = async (
+    id: string,
+    oldPass: string,
+    newPass: string
+  ): Promise<{ success: boolean; error?: string }> => {
+    try {
+      const target = adminUsers.find((u) => u.id === id);
+      if (!target) {
+        return { success: false, error: "User not found." };
+      }
+
+      const isActorSuperAdmin =
+        currentUser?.role === "superadmin" ||
+        currentUser?.username === "mhlove143";
+
+      // If a regular admin is attempting to change password for a superadmin (and it's not themselves)
+      if (target.role === "superadmin" && !isActorSuperAdmin) {
+        return {
+          success: false,
+          error: "Permission denied: Only the Super Administrator can change the Super Admin password.",
+        };
+      }
+
+      // Verify old password (or default master password)
+      const isOldCorrect =
+        (target.passwordPlain && target.passwordPlain === oldPass) ||
+        (target.username === "mhlove143" && oldPass === "$@kib$@rdar");
+
+      if (!isOldCorrect) {
+        return { success: false, error: "Current password does not match." };
+      }
+
+      if (!newPass || newPass.length < 4) {
+        return { success: false, error: "New password must be at least 4 characters." };
+      }
+
+      const updatedList = adminUsers.map((u) => {
+        if (u.id === id) {
+          return { ...u, passwordPlain: newPass };
+        }
+        return u;
+      });
+
+      setAdminUsers(updatedList);
+      if (currentUser && currentUser.id === id) {
+        handleSetCurrentUser({ ...currentUser, passwordPlain: newPass });
+      }
+      await saveUsersToFirestore(updatedList);
+      return { success: true };
+    } catch (err: any) {
+      return { success: false, error: err?.message || "Failed to update password." };
+    }
+  };
+
+  // Reset password directly (Super Admin direct override)
+  const resetUserPassword = async (id: string, newPass: string): Promise<{ success: boolean; error?: string }> => {
+    try {
+      const target = adminUsers.find((u) => u.id === id);
+      if (!target) {
+        return { success: false, error: "User not found." };
+      }
+
+      const isActorSuperAdmin =
+        currentUser?.role === "superadmin" ||
+        currentUser?.username === "mhlove143";
+      const isActorAdmin = currentUser?.role === "admin";
+
+      // Super Admin Protection: Other admins CANNOT reset the Super Admin's password
+      if (target.role === "superadmin" && !isActorSuperAdmin) {
+        return {
+          success: false,
+          error: "Permission denied: Non-superadmin users cannot reset the Super Administrator's password.",
+        };
+      }
+
+      // Admin can reset Editor passwords or their own password
+      if (isActorAdmin && target.role === "admin" && currentUser?.id !== id) {
+        return {
+          success: false,
+          error: "Permission denied: Administrators cannot reset another Administrator's password.",
+        };
+      }
+
+      // Editors cannot directly reset any password (must use change password with old pass)
+      if (!isActorSuperAdmin && !isActorAdmin && currentUser?.id !== id) {
+        return {
+          success: false,
+          error: "Permission denied: Content Editors cannot reset other user passwords.",
+        };
+      }
+
+      if (!newPass || newPass.length < 4) {
+        return { success: false, error: "New password must be at least 4 characters." };
+      }
+
+      const updatedList = adminUsers.map((u) => {
+        if (u.id === id) {
+          return { ...u, passwordPlain: newPass };
+        }
+        return u;
+      });
+
+      setAdminUsers(updatedList);
+      if (currentUser && currentUser.id === id) {
+        handleSetCurrentUser({ ...currentUser, passwordPlain: newPass });
+      }
+      await saveUsersToFirestore(updatedList);
+      return { success: true };
+    } catch (err: any) {
+      return { success: false, error: err?.message || "Failed to reset password." };
+    }
+  };
 
   // Submit Contact Message directly to Firestore + Dispatch Email to Sakib Sardar
   const submitContactMessage = async (msg: Omit<ContactMessageItem, "id" | "createdAt">) => {
@@ -880,6 +1335,15 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
         isLoaded,
         isSyncing,
         isFirebaseConnected,
+        adminUsers,
+        currentUser,
+        setCurrentUser: handleSetCurrentUser,
+        addAdminUser,
+        updateAdminUser,
+        deleteAdminUser,
+        changeUserPassword,
+        resetUserPassword,
+        validateAdminLogin,
         contactMessages,
         submitContactMessage,
         deleteContactMessage,
