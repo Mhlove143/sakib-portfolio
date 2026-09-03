@@ -52,7 +52,7 @@ export function HeroContactCard() {
               <MapPin className="h-4 w-4" />
             </div>
             <div className="min-w-0">
-              <span className="block text-[10px] font-bold uppercase tracking-wider text-primary-foreground/60">
+              <span className="block text-[10px] font-bold uppercase tracking-wider text-primary-foreground/75">
                 Location
               </span>
               <p className="truncate font-sora text-xs font-bold text-primary-foreground">
@@ -63,13 +63,13 @@ export function HeroContactCard() {
           </div>
 
           {/* Phone / WhatsApp Item */}
-          <div className="flex items-start justify-between gap-2 rounded-xl border border-primary-foreground/10 bg-primary-foreground/5 p-3 transition-colors hover:bg-primary-foreground/10">
+          <div className="flex items-start justify-between gap-2 rounded-xl border border-primary-foreground/15 bg-primary-foreground/10 p-3 transition-colors hover:bg-primary-foreground/15">
             <div className="flex items-start gap-2.5 min-w-0">
               <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-sky-400/20 text-sky-300">
                 <Phone className="h-4 w-4" />
               </div>
               <div className="min-w-0">
-                <span className="block text-[10px] font-bold uppercase tracking-wider text-primary-foreground/60">
+                <span className="block text-[10px] font-bold uppercase tracking-wider text-primary-foreground/75">
                   Call & WhatsApp
                 </span>
                 <a
@@ -93,7 +93,7 @@ export function HeroContactCard() {
             </div>
             <button
               onClick={() => handleCopy(personalInfo.phone, "phone")}
-              className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded text-primary-foreground/70 hover:bg-primary-foreground/20 hover:text-accent"
+              className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded text-primary-foreground/80 hover:bg-primary-foreground/20 hover:text-accent"
               title="Copy phone number"
             >
               {copiedPhone ? (
@@ -105,13 +105,13 @@ export function HeroContactCard() {
           </div>
 
           {/* Official Email Item */}
-          <div className="flex items-start justify-between gap-2 rounded-xl border border-primary-foreground/10 bg-primary-foreground/5 p-3 transition-colors hover:bg-primary-foreground/10">
+          <div className="flex items-start justify-between gap-2 rounded-xl border border-primary-foreground/15 bg-primary-foreground/10 p-3 transition-colors hover:bg-primary-foreground/15">
             <div className="flex items-start gap-2.5 min-w-0">
               <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-teal-400/20 text-teal-300">
                 <Mail className="h-4 w-4" />
               </div>
               <div className="min-w-0">
-                <span className="block text-[10px] font-bold uppercase tracking-wider text-primary-foreground/60">
+                <span className="block text-[10px] font-bold uppercase tracking-wider text-primary-foreground/75">
                   Official Email
                 </span>
                 <a

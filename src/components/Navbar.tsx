@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link, useLocation } from "react-router-dom";
 import {
   Menu,
@@ -8,24 +8,65 @@ import {
   ArrowRight,
   CheckCircle2,
   ShieldCheck,
+  Moon,
+  Check,
+  Palette,
 } from "lucide-react";
 import { ResumeModal } from "@/components/ResumeModal";
 import { navLinks } from "@/data/portfolio";
 import { usePortfolio } from "@/context/PortfolioContext";
+import { useTheme } from "@/context/ThemeContext";
 
 export function Navbar() {
   const { personalInfo } = usePortfolio();
+  const { theme, setTheme, themes } = useTheme();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [resumeOpen, setResumeOpen] = useState(false);
+  const [themeDropdownOpen, setThemeDropdownOpen] = useState(false);
+
+  const themeDropdownRef = useRef<HTMLDivElement>(null);
+  const themeButtonRef = useRef<HTMLButtonElement>(null);
 
   const location = useLocation();
   const currentPath = location.pathname;
 
-  // Close mobile drawer and scroll to top on route change
+  // Close mobile drawer and theme dropdown on route change
   useEffect(() => {
     setMobileMenuOpen(false);
+    setThemeDropdownOpen(false);
     window.scrollTo({ top: 0, behavior: "instant" });
   }, [currentPath]);
+
+  // Handle outside click to close theme dropdown
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        themeDropdownRef.current &&
+        !themeDropdownRef.current.contains(event.target as Node) &&
+        themeButtonRef.current &&
+        !themeButtonRef.current.contains(event.target as Node)
+      ) {
+        setThemeDropdownOpen(false);
+      }
+    }
+    if (themeDropdownOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [themeDropdownOpen]);
+
+  // Close dropdown on Escape key
+  useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key === "Escape") {
+        setThemeDropdownOpen(false);
+      }
+    }
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
 
   return (
     <>
@@ -89,37 +130,120 @@ export function Navbar() {
             })}
           </ul>
 
-          {/* Action CTAs: Resume & Hire Me */}
-          <div className="flex shrink-0 items-center gap-2 sm:gap-2.5">
-            {/* Admin CMS Button */}
+          {/* Action CTAs: Theme (Moon Dropdown), Admin (Icon), Resume (Icon), WhatsApp (Icon), Hire Me */}
+          <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
+            {/* Theme Dropdown Toggle Button (Moon Icon) */}
+            <div className="relative">
+              <button
+                ref={themeButtonRef}
+                onClick={() => setThemeDropdownOpen((prev) => !prev)}
+                className={`btn-shine flex h-9 w-9 items-center justify-center rounded-full border transition-all hover:scale-105 active:scale-95 ${
+                  themeDropdownOpen
+                    ? "border-accent bg-accent/15 text-accent shadow-sm"
+                    : "border-border/80 bg-card text-foreground hover:border-accent hover:text-accent shadow-sm"
+                }`}
+                title="Theme Colors (Click to change theme)"
+                aria-label="Theme Colors (Click to change theme)"
+                aria-expanded={themeDropdownOpen}
+              >
+                <Moon className="h-4 w-4 text-accent" />
+              </button>
+
+              {/* Theme Dropdown Menu */}
+              {themeDropdownOpen && (
+                <div
+                  ref={themeDropdownRef}
+                  className="absolute right-0 top-full mt-2 w-64 rounded-2xl border border-border/90 bg-card/95 p-2 shadow-2xl backdrop-blur-xl animate-in fade-in zoom-in-95 duration-150 z-50"
+                >
+                  <div className="flex items-center justify-between border-b border-border/60 px-3 py-2">
+                    <div className="flex items-center gap-1.5 text-xs font-bold text-foreground">
+                      <Palette className="h-3.5 w-3.5 text-accent" />
+                      <span>Theme Colors</span>
+                    </div>
+                    <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
+                      4 Themes
+                    </span>
+                  </div>
+
+                  <div className="mt-1.5 space-y-1">
+                    {themes.map((t) => {
+                      const isSelected = theme === t.id;
+                      return (
+                        <button
+                          key={t.id}
+                          onClick={() => {
+                            setTheme(t.id);
+                            setThemeDropdownOpen(false);
+                          }}
+                          className={`flex w-full items-center justify-between rounded-xl px-3 py-2 text-left transition-all ${
+                            isSelected
+                              ? "bg-primary/15 text-foreground ring-1 ring-primary/40 font-semibold"
+                              : "text-muted-foreground hover:bg-muted/70 hover:text-foreground"
+                          }`}
+                        >
+                          <div className="flex items-center gap-2.5 min-w-0">
+                            {/* Two-tone color dot preview */}
+                            <div
+                              className="relative flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-white/20 shadow-inner overflow-hidden"
+                              style={{ backgroundColor: t.previewBg }}
+                            >
+                              <span
+                                className="absolute -right-0.5 -bottom-0.5 h-3 w-3 rounded-full border border-white/30"
+                                style={{ backgroundColor: t.previewPrimary }}
+                              />
+                            </div>
+
+                            <div className="flex flex-col min-w-0">
+                              <span className="text-xs font-bold text-foreground truncate">
+                                {t.name}
+                              </span>
+                              <span className="text-[10px] text-muted-foreground truncate">
+                                {t.description}
+                              </span>
+                            </div>
+                          </div>
+
+                          {isSelected && (
+                            <Check className="h-4 w-4 shrink-0 text-accent ml-2" />
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Admin CMS Button (Icon only to save navigation space) */}
             <Link
               to="/admin"
-              className="btn-shine inline-flex items-center gap-1 rounded-full border border-border/80 bg-card px-2.5 py-1.5 text-xs font-semibold text-muted-foreground hover:border-accent hover:text-accent transition-all sm:px-3 sm:py-2"
-              title="Open Admin CMS Dashboard to add/edit/delete content & CV"
+              className="btn-shine flex h-9 w-9 items-center justify-center rounded-full border border-border/80 bg-card text-muted-foreground shadow-sm transition-all hover:border-accent hover:text-accent hover:scale-105 active:scale-95"
+              title="Admin CMS Dashboard"
+              aria-label="Admin CMS Dashboard"
             >
-              <ShieldCheck className="h-3.5 w-3.5 text-accent" />
-              <span className="hidden sm:inline">Admin</span>
+              <ShieldCheck className="h-4 w-4 text-accent" />
             </Link>
 
-            {/* Resume Button */}
+            {/* Resume Button (Icon only to save navigation space) */}
             <button
               onClick={() => setResumeOpen(true)}
-              className="btn-shine inline-flex items-center gap-1.5 rounded-full border border-border/90 bg-card px-3 py-1.5 text-xs font-semibold text-foreground shadow-sm transition-all hover:border-accent hover:text-accent sm:px-3.5 sm:py-2"
-              title="View and Download Resume"
+              className="btn-shine flex h-9 w-9 items-center justify-center rounded-full border border-border/90 bg-card text-foreground shadow-sm transition-all hover:border-accent hover:text-accent hover:scale-105 active:scale-95"
+              title="View & Download Resume / CV"
+              aria-label="View & Download Resume / CV"
             >
-              <FileText className="h-3.5 w-3.5 text-accent" />
-              <span className="hidden md:inline">Resume</span>
+              <FileText className="h-4 w-4 text-accent" />
             </button>
 
-            {/* WhatsApp Direct */}
+            {/* WhatsApp Direct (Icon only to save navigation space) */}
             <a
               href={personalInfo.whatsappUrl}
               target="_blank"
               rel="noreferrer"
-              className="btn-shine hidden items-center gap-1.5 rounded-full border border-border/80 bg-card px-3 py-1.5 text-xs font-semibold text-foreground shadow-sm transition-all hover:border-accent/50 xl:inline-flex"
+              className="btn-shine flex h-9 w-9 items-center justify-center rounded-full border border-border/80 bg-card text-foreground shadow-sm transition-all hover:border-emerald-500/60 hover:text-emerald-500 hover:scale-105 active:scale-95"
+              title="Direct WhatsApp Chat"
+              aria-label="Direct WhatsApp Chat"
             >
-              <MessageSquare className="h-3.5 w-3.5 text-accent" />
-              <span>WhatsApp</span>
+              <MessageSquare className="h-4 w-4 text-emerald-500" />
             </a>
 
             {/* Hire Me CTA (links directly to /contact) */}
@@ -145,7 +269,7 @@ export function Navbar() {
         {/* Mobile Dropdown Drawer */}
         {mobileMenuOpen && (
           <div className="border-b border-border/80 bg-background/95 px-5 py-5 backdrop-blur-2xl lg:hidden animate-in slide-in-from-top-3 duration-200">
-            <div className="flex flex-col space-y-1.5">
+            <div className="flex flex-col space-y-2">
               {navLinks.map((link) => {
                 const isActive =
                   link.href === "/"
@@ -169,7 +293,42 @@ export function Navbar() {
                 );
               })}
 
-              <div className="border-t border-border/70 pt-4 flex flex-col gap-2">
+              {/* Theme Color Selector inside Mobile Drawer */}
+              <div className="rounded-2xl border border-border/80 bg-muted/30 p-3 mt-2">
+                <div className="mb-2 flex items-center justify-between text-xs font-bold text-foreground">
+                  <div className="flex items-center gap-1.5">
+                    <Palette className="h-3.5 w-3.5 text-accent" />
+                    <span>Theme Colors</span>
+                  </div>
+                  <span className="text-[10px] uppercase font-bold tracking-wider text-accent">
+                    {themes.find((t) => t.id === theme)?.name}
+                  </span>
+                </div>
+                <div className="grid grid-cols-2 gap-1.5">
+                  {themes.map((t) => {
+                    const isSelected = theme === t.id;
+                    return (
+                      <button
+                        key={t.id}
+                        onClick={() => setTheme(t.id)}
+                        className={`flex items-center gap-2 rounded-xl p-2 text-left text-xs font-semibold transition-all ${
+                          isSelected
+                            ? "bg-primary text-primary-foreground shadow-sm font-bold"
+                            : "border border-border/70 bg-card text-muted-foreground hover:text-foreground"
+                        }`}
+                      >
+                        <div
+                          className="h-3 w-3 shrink-0 rounded-full border border-white/20"
+                          style={{ backgroundColor: t.previewPrimary }}
+                        />
+                        <span className="truncate text-[11px]">{t.name}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div className="border-t border-border/70 pt-3 flex flex-col gap-2">
                 <Link
                   to="/admin"
                   onClick={() => setMobileMenuOpen(false)}

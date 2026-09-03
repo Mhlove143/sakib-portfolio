@@ -1425,14 +1425,14 @@ export function HomePage() {
             {/* Left Narrative */}
             <div className="space-y-4 sm:space-y-5 lg:col-span-5">
               <Reveal>
-                <div className="inline-flex items-center gap-2 rounded-full border border-primary-foreground/20 bg-primary-foreground/15 px-3.5 py-1 sm:px-4 sm:py-1.5 text-[11px] sm:text-xs font-semibold uppercase tracking-wider backdrop-blur-md">
+                <div className="inline-flex items-center gap-2 rounded-full border border-primary-foreground/30 bg-primary-foreground/15 px-3.5 py-1 sm:px-4 sm:py-1.5 text-[11px] sm:text-xs font-bold uppercase tracking-wider backdrop-blur-md">
                   <Sparkles className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-accent" />
-                  Available for High-Impact Projects
+                  <span>Available for High-Impact Projects</span>
                 </div>
-                <h2 className="mt-1 sm:mt-2 font-sora text-2xl sm:text-5xl font-extrabold tracking-tight">
+                <h2 className="mt-1 sm:mt-2 font-sora text-2xl sm:text-5xl font-extrabold tracking-tight text-primary-foreground">
                   Let's Discuss Your Next Initiative
                 </h2>
-                <p className="text-sm sm:text-base leading-relaxed text-primary-foreground/85">
+                <p className="text-sm sm:text-base leading-relaxed text-primary-foreground/90">
                   Have a challenging software roadmap or an e-commerce platform that needs to scale?
                   Send a message or reach out on WhatsApp directly.
                 </p>

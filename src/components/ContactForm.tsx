@@ -64,13 +64,13 @@ export function ContactForm({ compact = false, className = "" }: ContactFormProp
   }
 
   const fieldClass =
-    "w-full rounded-xl border border-primary-foreground/20 bg-primary-foreground/10 px-4 py-3 text-sm text-primary-foreground placeholder:text-primary-foreground/50 outline-none backdrop-blur-md transition-all duration-300 focus:border-accent focus:bg-primary-foreground/20 focus:ring-2 focus:ring-accent/40";
+    "w-full rounded-xl border border-primary-foreground/30 bg-primary-foreground/10 px-4 py-3 text-sm text-primary-foreground placeholder:text-primary-foreground/60 outline-none backdrop-blur-md transition-all duration-300 focus:border-accent focus:bg-primary-foreground/20 focus:ring-2 focus:ring-accent/40";
 
   return (
     <div
-      className={`relative w-full rounded-3xl border border-primary-foreground/20 bg-primary-foreground/5 p-6 shadow-2xl backdrop-blur-2xl transition-all duration-500 sm:p-9 ${className}`}
+      className={`relative w-full rounded-3xl border border-primary-foreground/25 bg-black/25 p-6 shadow-2xl backdrop-blur-2xl transition-all duration-500 sm:p-9 ${className}`}
     >
-      <div className="mb-6 flex flex-wrap items-center justify-between gap-3 border-b border-primary-foreground/15 pb-5">
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-3 border-b border-primary-foreground/20 pb-5">
         <div>
           <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-accent">
             <Sparkles className="h-3.5 w-3.5" /> Quick Contact
@@ -82,7 +82,7 @@ export function ContactForm({ compact = false, className = "" }: ContactFormProp
         <button
           type="button"
           onClick={handleCopyEmail}
-          className="btn-shine inline-flex items-center gap-2 rounded-full border border-primary-foreground/20 bg-primary-foreground/10 px-3.5 py-1.5 text-xs font-semibold text-primary-foreground transition-all hover:bg-accent hover:text-accent-foreground"
+          className="btn-shine inline-flex items-center gap-2 rounded-full border border-primary-foreground/30 bg-primary-foreground/10 px-3.5 py-1.5 text-xs font-semibold text-primary-foreground transition-all hover:bg-accent hover:text-accent-foreground"
           title="Copy email to clipboard"
         >
           {copied ? (
@@ -101,7 +101,7 @@ export function ContactForm({ compact = false, className = "" }: ContactFormProp
 
       <form onSubmit={handleSubmit} className="space-y-4 text-left">
         <div>
-          <label className="mb-2 block text-xs font-bold uppercase tracking-widest text-primary-foreground/75">
+          <label className="mb-2 block text-xs font-bold uppercase tracking-widest text-primary-foreground/90">
             What are you interested in?
           </label>
           <div className="flex flex-wrap gap-2">
@@ -110,10 +110,10 @@ export function ContactForm({ compact = false, className = "" }: ContactFormProp
                 key={topic}
                 type="button"
                 onClick={() => handleTopicClick(topic)}
-                className={`rounded-full px-3.5 py-1.5 text-xs font-medium transition-all duration-200 ${
+                className={`rounded-full px-3.5 py-1.5 text-xs font-semibold transition-all duration-200 ${
                   form.subject === topic
                     ? "bg-accent text-accent-foreground shadow-md shadow-accent/30 ring-2 ring-accent"
-                    : "border border-primary-foreground/20 bg-primary-foreground/10 text-primary-foreground/85 hover:border-accent hover:bg-primary-foreground/20"
+                    : "border border-primary-foreground/30 bg-primary-foreground/10 text-primary-foreground hover:border-accent hover:bg-primary-foreground/20"
                 }`}
               >
                 {topic}
@@ -126,7 +126,7 @@ export function ContactForm({ compact = false, className = "" }: ContactFormProp
           <div>
             <label
               htmlFor="name"
-              className="mb-2 block text-xs font-bold uppercase tracking-widest text-primary-foreground/70"
+              className="mb-2 block text-xs font-bold uppercase tracking-widest text-primary-foreground/90"
             >
               Your Name *
             </label>
@@ -142,7 +142,7 @@ export function ContactForm({ compact = false, className = "" }: ContactFormProp
           <div>
             <label
               htmlFor="email"
-              className="mb-2 block text-xs font-bold uppercase tracking-widest text-primary-foreground/70"
+              className="mb-2 block text-xs font-bold uppercase tracking-widest text-primary-foreground/90"
             >
               Email Address *
             </label>
@@ -161,7 +161,7 @@ export function ContactForm({ compact = false, className = "" }: ContactFormProp
         <div>
           <label
             htmlFor="subject"
-            className="mb-2 block text-xs font-bold uppercase tracking-widest text-primary-foreground/70"
+            className="mb-2 block text-xs font-bold uppercase tracking-widest text-primary-foreground/90"
           >
             Subject / Project Type
           </label>
@@ -177,7 +177,7 @@ export function ContactForm({ compact = false, className = "" }: ContactFormProp
         <div>
           <label
             htmlFor="message"
-            className="mb-2 block text-xs font-bold uppercase tracking-widest text-primary-foreground/70"
+            className="mb-2 block text-xs font-bold uppercase tracking-widest text-primary-foreground/90"
           >
             Message / Project Details *
           </label>

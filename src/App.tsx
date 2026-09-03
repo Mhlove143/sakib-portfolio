@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-route
 import { useEffect } from "react";
 import { Toaster } from "sonner";
 import { PortfolioProvider, usePortfolio } from "@/context/PortfolioContext";
+import { ThemeProvider } from "@/context/ThemeContext";
 import { StickyWhatsApp } from "@/components/StickyWhatsApp";
 
 import { HomePage } from "@/routes/index";
@@ -53,26 +54,28 @@ function DynamicBrandingHandler() {
 
 export default function App() {
   return (
-    <PortfolioProvider>
-      <BrowserRouter>
-        <ScrollToTop />
-        <DynamicBrandingHandler />
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/about" element={<AboutPage />} />
-          <Route path="/services" element={<ServicesPage />} />
-          <Route path="/skills" element={<SkillsPage />} />
-          <Route path="/projects" element={<ProjectsPage />} />
-          <Route path="/experience" element={<ExperiencePage />} />
-          <Route path="/education" element={<EducationPage />} />
-          <Route path="/contact" element={<ContactPage />} />
-          <Route path="/admin" element={<AdminPage />} />
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-        <StickyWhatsApp />
-        <Toaster richColors position="top-right" />
-      </BrowserRouter>
-    </PortfolioProvider>
+    <ThemeProvider>
+      <PortfolioProvider>
+        <BrowserRouter>
+          <ScrollToTop />
+          <DynamicBrandingHandler />
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/about" element={<AboutPage />} />
+            <Route path="/services" element={<ServicesPage />} />
+            <Route path="/skills" element={<SkillsPage />} />
+            <Route path="/projects" element={<ProjectsPage />} />
+            <Route path="/experience" element={<ExperiencePage />} />
+            <Route path="/education" element={<EducationPage />} />
+            <Route path="/contact" element={<ContactPage />} />
+            <Route path="/admin" element={<AdminPage />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+          <StickyWhatsApp />
+          <Toaster richColors position="top-right" />
+        </BrowserRouter>
+      </PortfolioProvider>
+    </ThemeProvider>
   );
 }
 
