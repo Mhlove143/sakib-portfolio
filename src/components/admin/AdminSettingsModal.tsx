@@ -21,8 +21,11 @@ import {
   Check,
   Server,
   Download,
+  Palette,
+  Moon,
 } from "lucide-react";
 import { usePortfolio, type AdminUser, type AdminRole } from "@/context/PortfolioContext";
+import { useTheme } from "@/context/ThemeContext";
 import { toast } from "sonner";
 
 interface AdminSettingsModalProps {
@@ -31,9 +34,10 @@ interface AdminSettingsModalProps {
   onLogout?: () => void;
 }
 
-type SettingsTab = "users" | "create" | "password" | "system";
+type SettingsTab = "users" | "create" | "password" | "appearance" | "system";
 
 export function AdminSettingsModal({ isOpen, onClose, onLogout }: AdminSettingsModalProps) {
+  const { theme, setTheme, themes } = useTheme();
   const {
     adminUsers,
     currentUser,
@@ -361,6 +365,7 @@ export function AdminSettingsModal({ isOpen, onClose, onLogout }: AdminSettingsM
         ]
       : []),
     { id: "password" as SettingsTab, label: "Change Password", icon: KeyRound },
+    { id: "appearance" as SettingsTab, label: "Theme & Colors", icon: Palette },
     ...(!isEditor
       ? [{ id: "system" as SettingsTab, label: "System & Cloud", icon: Server }]
       : []),
@@ -975,6 +980,106 @@ export function AdminSettingsModal({ isOpen, onClose, onLogout }: AdminSettingsM
                   </button>
                 </div>
               </form>
+            </div>
+          )}
+
+          {/* TAB: THEME & APPEARANCE (ALL ROLES) */}
+          {activeTab === "appearance" && (
+            <div className="space-y-6">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <h3 className="font-sora text-base font-extrabold text-foreground flex items-center gap-2">
+                    <Palette className="h-4 w-4 text-accent" />
+                    Portfolio Theme & Color Schemes
+                  </h3>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    Select a color palette for the public portfolio and admin workspace. Changes take effect immediately.
+                  </p>
+                </div>
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-border/80 bg-muted/40 px-3 py-1 text-xs font-semibold text-foreground">
+                  <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+                  Active: {themes.find((t) => t.id === theme)?.name || "Day"}
+                </span>
+              </div>
+
+              <div className="grid gap-4 sm:grid-cols-2">
+                {themes.map((t) => {
+                  const isSelected = theme === t.id;
+                  return (
+                    <button
+                      key={t.id}
+                      type="button"
+                      onClick={() => {
+                        setTheme(t.id);
+                        toast.success(`Active theme changed to ${t.name}`);
+                      }}
+                      className={`group relative flex items-start gap-4 rounded-2xl border p-4 text-left transition-all duration-200 ${
+                        isSelected
+                          ? "border-primary bg-primary/10 shadow-lg ring-2 ring-primary/40"
+                          : "border-border/80 bg-card hover:border-primary/50 hover:bg-muted/40"
+                      }`}
+                    >
+                      {/* Theme Preview Swatch */}
+                      <div
+                        className="relative flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-white/20 shadow-inner overflow-hidden"
+                        style={{ backgroundColor: t.previewBg }}
+                      >
+                        <span
+                          className="absolute -right-1 -bottom-1 h-7 w-7 rounded-full border-2 border-white/40 shadow-sm"
+                          style={{ backgroundColor: t.previewPrimary }}
+                        />
+                      </div>
+
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="font-sora text-sm font-bold text-foreground">
+                            {t.name}
+                          </span>
+                          {isSelected ? (
+                            <span className="inline-flex items-center gap-1 rounded-full bg-primary px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wider text-primary-foreground shadow-sm">
+                              <Check className="h-3 w-3" /> Active
+                            </span>
+                          ) : (
+                            <span className="rounded-full border border-border/70 px-2 py-0.5 text-[10px] font-semibold text-muted-foreground group-hover:border-primary/60 group-hover:text-foreground transition-colors">
+                              Click to apply
+                            </span>
+                          )}
+                        </div>
+
+                        <p className="mt-1 text-xs text-muted-foreground leading-relaxed">
+                          {t.description}
+                        </p>
+
+                        <div className="mt-3 flex items-center gap-2 pt-2 border-t border-border/50 text-[11px] text-muted-foreground">
+                          <div className="flex items-center gap-1.5">
+                            <span
+                              className="inline-block h-3 w-3 rounded-full border border-white/30"
+                              style={{ backgroundColor: t.previewPrimary }}
+                            />
+                            <span className="font-medium">Accent Color</span>
+                          </div>
+                          <span className="text-border">•</span>
+                          <div className="flex items-center gap-1.5">
+                            <span
+                              className="inline-block h-3 w-3 rounded-full border border-white/30"
+                              style={{ backgroundColor: t.previewBg }}
+                            />
+                            <span className="font-medium">Canvas Background</span>
+                          </div>
+                        </div>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+
+              <div className="rounded-2xl border border-border/70 bg-muted/20 p-4 text-xs text-muted-foreground leading-relaxed flex items-start gap-3">
+                <Sparkles className="h-4 w-4 shrink-0 text-accent mt-0.5" />
+                <div>
+                  <span className="font-bold text-foreground">Real-time synchronization: </span>
+                  When you switch themes here or from the top navigation bar, the chosen color palette is saved to your browser preferences and immediately updates across all public pages, modals, and the admin CMS.
+                </div>
+              </div>
             </div>
           )}
 

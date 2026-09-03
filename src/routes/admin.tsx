@@ -42,9 +42,13 @@ import {
   Github,
   Settings,
   Users,
+  Moon,
+  Palette,
+  Check,
 } from "lucide-react";
 import portraitAsset from "@/assets/sakib-portrait.png.asset.json";
 import { usePortfolio } from "@/context/PortfolioContext";
+import { useTheme } from "@/context/ThemeContext";
 import { AdminSettingsModal } from "@/components/admin/AdminSettingsModal";
 import { toast } from "sonner";
 import {
@@ -167,6 +171,32 @@ export function AdminPage() {
   const [customPhotoUrlInput, setCustomPhotoUrlInput] = useState("");
   const [customBrandLogoUrlInput, setCustomBrandLogoUrlInput] = useState("");
   const [customFaviconUrlInput, setCustomFaviconUrlInput] = useState("");
+
+  const { theme, setTheme, themes } = useTheme();
+  const [themeDropdownOpen, setThemeDropdownOpen] = useState(false);
+  const themeDropdownRef = useRef<HTMLDivElement>(null);
+  const themeButtonRef = useRef<HTMLButtonElement>(null);
+
+  // Close theme dropdown when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        themeDropdownRef.current &&
+        !themeDropdownRef.current.contains(event.target as Node) &&
+        themeButtonRef.current &&
+        !themeButtonRef.current.contains(event.target as Node)
+      ) {
+        setThemeDropdownOpen(false);
+      }
+    }
+
+    if (themeDropdownOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [themeDropdownOpen]);
 
   const handleLogin = (e: FormEvent) => {
     e.preventDefault();
@@ -592,7 +622,35 @@ export function AdminPage() {
     <div className="min-h-screen bg-background text-foreground">
       {/* AUTHENTICATION GATE */}
       {!isAuthenticated ? (
-        <div className="flex min-h-screen items-center justify-center bg-background px-4 py-12">
+        <div className="relative flex min-h-screen items-center justify-center bg-background px-4 py-12">
+          {/* Top Bar for Login Screen */}
+          <div className="absolute top-4 right-4 flex items-center gap-2 z-10">
+            {/* Quick theme cycle button */}
+            <button
+              type="button"
+              onClick={() => {
+                const currentIndex = themes.findIndex((t) => t.id === theme);
+                const nextTheme = themes[(currentIndex + 1) % themes.length];
+                setTheme(nextTheme.id);
+                toast.success(`Theme: ${nextTheme.name}`);
+              }}
+              className="inline-flex items-center gap-1.5 rounded-full border border-border/80 bg-card/90 px-3 py-1.5 text-xs font-semibold text-foreground backdrop-blur-md transition-colors hover:border-accent shadow-sm"
+              title="Change Theme Color Scheme"
+            >
+              <Moon className="h-3.5 w-3.5 text-accent" />
+              <span className="hidden sm:inline">Theme:</span>
+              <span className="font-bold text-accent">{themes.find((t) => t.id === theme)?.name}</span>
+            </button>
+            <Link
+              to="/"
+              className="inline-flex items-center gap-1.5 rounded-full border border-border/80 bg-card/90 px-3 py-1.5 text-xs font-semibold text-foreground backdrop-blur-md transition-colors hover:border-accent hover:text-accent shadow-sm"
+              title="Return to Public Portfolio"
+            >
+              <ExternalLink className="h-3.5 w-3.5" />
+              <span className="hidden sm:inline">Live Site</span>
+            </Link>
+          </div>
+
           <div className="w-full max-w-md rounded-3xl border border-border/80 bg-card p-8 shadow-2xl backdrop-blur-xl">
             <div className="text-center">
               <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-lg shadow-accent/25">
@@ -721,6 +779,78 @@ export function AdminPage() {
 
               {/* Quick Actions */}
               <div className="flex flex-wrap items-center gap-2">
+                {/* Theme Selector Dropdown */}
+                <div className="relative">
+                  <button
+                    ref={themeButtonRef}
+                    onClick={() => setThemeDropdownOpen((prev) => !prev)}
+                    className={`btn-shine inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold transition-all hover:scale-105 active:scale-95 ${
+                      themeDropdownOpen
+                        ? "border-accent bg-accent/15 text-accent shadow-sm"
+                        : "border-border/80 bg-card text-foreground hover:border-accent hover:text-accent shadow-sm"
+                    }`}
+                    title="Change Theme Color Scheme"
+                    aria-label="Change Theme Color Scheme"
+                    aria-expanded={themeDropdownOpen}
+                  >
+                    <Moon className="h-3.5 w-3.5 text-accent" />
+                    <span className="hidden sm:inline">Theme:</span>
+                    <span className="font-bold text-accent">
+                      {themes.find((t) => t.id === theme)?.name || "Theme"}
+                    </span>
+                  </button>
+
+                  {/* Theme Dropdown Menu */}
+                  {themeDropdownOpen && (
+                    <div
+                      ref={themeDropdownRef}
+                      className="absolute right-0 top-full mt-2 w-64 rounded-2xl border border-border/90 bg-card/95 p-2 shadow-2xl backdrop-blur-xl animate-in fade-in zoom-in-95 duration-150 z-50"
+                    >
+                      <div className="flex items-center justify-between border-b border-border/60 px-3 py-2">
+                        <div className="flex items-center gap-1.5 text-xs font-bold text-foreground">
+                          <Palette className="h-3.5 w-3.5 text-accent" />
+                          <span>Theme Colors</span>
+                        </div>
+                        <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
+                          4 Themes
+                        </span>
+                      </div>
+
+                      <div className="mt-1.5 space-y-1">
+                        {themes.map((t) => {
+                          const isSelected = theme === t.id;
+                          return (
+                            <button
+                              key={t.id}
+                              onClick={() => {
+                                setTheme(t.id);
+                                setThemeDropdownOpen(false);
+                                toast.success(`Theme switched to ${t.name}!`);
+                              }}
+                              className={`flex w-full items-center justify-between gap-3 rounded-xl px-3 py-2 text-left text-xs font-medium transition-colors ${
+                                isSelected
+                                  ? "bg-accent/15 text-accent font-semibold"
+                                  : "text-muted-foreground hover:bg-muted/60 hover:text-foreground"
+                              }`}
+                            >
+                              <div className="flex items-center gap-2.5">
+                                <span
+                                  className="h-3.5 w-3.5 rounded-full border border-white/20 shadow-sm"
+                                  style={{ backgroundColor: t.previewPrimary }}
+                                />
+                                <span>{t.name}</span>
+                              </div>
+                              {isSelected && (
+                                <Check className="h-3.5 w-3.5 text-accent" />
+                              )}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+                </div>
+
                 <Link
                   to="/"
                   className="inline-flex items-center gap-1.5 rounded-full border border-border/80 bg-card px-3 py-1.5 text-xs font-semibold text-foreground transition-colors hover:border-accent hover:text-accent"
