@@ -86,6 +86,50 @@ export function HomePage() {
   const activePhoto =
     personalInfo.customProfilePhotoDataUri || personalInfo.avatarUrl || portraitAsset.url;
 
+  // Reusable Hero Portrait Card for both mobile & desktop layouts
+  const heroPhotoCard = (
+    <div className="group relative w-full max-w-[18.5rem] sm:max-w-[27rem] lg:max-w-[29rem] px-2 sm:px-3 py-2 sm:py-3">
+      {/* Reference Image Background Card: Tilted rounded deep-accent card */}
+      <div className="absolute inset-x-2 inset-y-1 rotate-[-3.5deg] rounded-[2rem] sm:rounded-[2.5rem] bg-gradient-to-br from-primary/90 via-accent/50 to-slate-950 border-2 border-accent/40 shadow-2xl shadow-black/80 transition-all duration-500 group-hover:rotate-[-5deg] group-hover:scale-[1.03]" />
+
+      {/* Ambient glowing atmosphere behind photo */}
+      <div className="absolute -inset-2 rounded-[2.4rem] sm:rounded-[2.8rem] bg-gradient-to-tr from-accent/40 via-primary/30 to-accent/40 opacity-75 blur-2xl transition-all duration-700 group-hover:opacity-100 group-hover:blur-3xl" />
+
+      {/* Main Foreground Card with Photo */}
+      <div className="relative overflow-hidden rounded-[1.8rem] sm:rounded-[2.2rem] border-2 border-accent/40 bg-slate-950/60 shadow-2xl backdrop-blur-md transition-all duration-500 group-hover:scale-[1.02] group-hover:border-accent/70">
+        <img
+          src={activePhoto}
+          alt={`${personalInfo.name} — ${personalInfo.title}`}
+          className="h-[20rem] sm:h-[30rem] lg:h-[33rem] w-full object-cover object-top transition-transform duration-700 group-hover:scale-105"
+        />
+
+        {/* Floating Role Badge with Crisp, High-Contrast Typography */}
+        <div className="absolute bottom-3 sm:bottom-4 left-3 sm:left-4 right-3 sm:right-4 rounded-xl sm:rounded-2xl border border-accent/50 bg-black/85 p-2.5 sm:p-3.5 shadow-2xl backdrop-blur-xl">
+          <div className="flex items-center gap-2.5 sm:gap-3">
+            <span className="flex h-8 w-8 sm:h-9 sm:w-9 shrink-0 items-center justify-center rounded-lg sm:rounded-xl bg-accent/20 text-accent border border-accent/40 shadow-sm">
+              <Briefcase className="h-4 w-4 sm:h-4.5 sm:w-4.5" />
+            </span>
+            <div className="min-w-0 flex-1">
+              <p className="truncate font-sora text-xs font-bold text-white">
+                {experiences[0]?.company || "ScaleUP Ads Agency"}
+              </p>
+              <p className="truncate text-[11px] sm:text-xs font-bold text-accent">
+                {experiences[0]?.title || personalInfo.title}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Floating Experience Badge (Top Right) */}
+        <div className="animate-float-soft absolute top-3 sm:top-4 right-3 sm:right-4 rounded-lg sm:rounded-xl border border-accent/50 bg-black/85 px-2.5 py-1 sm:px-3.5 sm:py-1.5 shadow-xl backdrop-blur-xl">
+          <p className="font-sora text-[10px] sm:text-[11px] font-extrabold uppercase tracking-wider text-accent">
+            {keyMetrics[0] ? `${keyMetrics[0].value} ${keyMetrics[0].suffix} Pro Dev` : "2+ Years Pro Dev"}
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+
   // Filter services if needed
   const filteredServices =
     selectedServiceFilter === "all"
@@ -171,6 +215,13 @@ export function HomePage() {
                   <Typewriter words={personalInfo.roles} typingSpeed={75} pauseTime={2200} />
                 </div>
               </Reveal>
+
+              {/* Mobile Hero Portrait: Positioned Directly Below Name & Designation on Small Screens */}
+              <div className="flex justify-center py-2 lg:hidden">
+                <Reveal delay={140}>
+                  {heroPhotoCard}
+                </Reveal>
+              </div>
 
               {/* Narrative Bio (Streamlined on mobile) */}
               <Reveal delay={180}>
@@ -295,49 +346,10 @@ export function HomePage() {
               </Reveal>
             </div>
 
-            {/* Right Column: Hero Portrait with Reference Style Background Card Effect */}
-            <div className="flex justify-center lg:col-span-5">
+            {/* Right Column: Hero Portrait for Desktop (Hidden on mobile, visible on lg+) */}
+            <div className="hidden justify-center lg:flex lg:col-span-5">
               <Reveal delay={150}>
-                <div className="group relative w-full max-w-[19rem] sm:max-w-[27rem] lg:max-w-[29rem] px-2 sm:px-3 py-2 sm:py-3">
-                  {/* Reference Image Background Card: Tilted rounded deep-accent card */}
-                  <div className="absolute inset-x-2 inset-y-1 rotate-[-3.5deg] rounded-[2rem] sm:rounded-[2.5rem] bg-gradient-to-br from-primary/90 via-accent/50 to-slate-950 border-2 border-accent/40 shadow-2xl shadow-black/80 transition-all duration-500 group-hover:rotate-[-5deg] group-hover:scale-[1.03]" />
-
-                  {/* Ambient glowing atmosphere behind photo */}
-                  <div className="absolute -inset-2 rounded-[2.4rem] sm:rounded-[2.8rem] bg-gradient-to-tr from-accent/40 via-primary/30 to-accent/40 opacity-75 blur-2xl transition-all duration-700 group-hover:opacity-100 group-hover:blur-3xl" />
-
-                  {/* Main Foreground Card with Photo */}
-                  <div className="relative overflow-hidden rounded-[1.8rem] sm:rounded-[2.2rem] border-2 border-accent/40 bg-slate-950/60 shadow-2xl backdrop-blur-md transition-all duration-500 group-hover:scale-[1.02] group-hover:border-accent/70">
-                    <img
-                      src={activePhoto}
-                      alt={`${personalInfo.name} — ${personalInfo.title}`}
-                      className="h-[20rem] sm:h-[30rem] lg:h-[33rem] w-full object-cover object-top transition-transform duration-700 group-hover:scale-105"
-                    />
-
-                    {/* Floating Role Badge with Crisp, High-Contrast Typography */}
-                    <div className="absolute bottom-3 sm:bottom-4 left-3 sm:left-4 right-3 sm:right-4 rounded-xl sm:rounded-2xl border border-accent/50 bg-black/85 p-2.5 sm:p-3.5 shadow-2xl backdrop-blur-xl">
-                      <div className="flex items-center gap-2.5 sm:gap-3">
-                        <span className="flex h-8 w-8 sm:h-9 sm:w-9 shrink-0 items-center justify-center rounded-lg sm:rounded-xl bg-accent/20 text-accent border border-accent/40 shadow-sm">
-                          <Briefcase className="h-4 w-4 sm:h-4.5 sm:w-4.5" />
-                        </span>
-                        <div className="min-w-0 flex-1">
-                          <p className="truncate font-sora text-xs font-bold text-white">
-                            {experiences[0]?.company || "ScaleUP Ads Agency"}
-                          </p>
-                          <p className="truncate text-[11px] sm:text-xs font-bold text-accent">
-                            {experiences[0]?.title || personalInfo.title}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Floating Experience Badge (Top Right) */}
-                    <div className="animate-float-soft absolute top-3 sm:top-4 right-3 sm:right-4 rounded-lg sm:rounded-xl border border-accent/50 bg-black/85 px-2.5 py-1 sm:px-3.5 sm:py-1.5 shadow-xl backdrop-blur-xl">
-                      <p className="font-sora text-[10px] sm:text-[11px] font-extrabold uppercase tracking-wider text-accent">
-                        {keyMetrics[0] ? `${keyMetrics[0].value} ${keyMetrics[0].suffix} Pro Dev` : "2+ Years Pro Dev"}
-                      </p>
-                    </div>
-                  </div>
-                </div>
+                {heroPhotoCard}
               </Reveal>
             </div>
           </div>
