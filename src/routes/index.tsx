@@ -88,7 +88,7 @@ export function HomePage() {
 
   // Reusable Hero Portrait Card for both mobile & desktop layouts
   const heroPhotoCard = (
-    <div className="group relative w-full max-w-[18.5rem] sm:max-w-[27rem] lg:max-w-[29rem] px-2 sm:px-3 py-2 sm:py-3">
+    <div className="group relative w-full max-w-[18.5rem] sm:max-w-[27rem] lg:max-w-[29rem] mx-auto px-2 sm:px-3 py-2 sm:py-3">
       {/* Reference Image Background Card: Tilted rounded deep-accent card */}
       <div className="absolute inset-x-2 inset-y-1 rotate-[-3.5deg] rounded-[2rem] sm:rounded-[2.5rem] bg-gradient-to-br from-primary/90 via-accent/50 to-slate-950 border-2 border-accent/40 shadow-2xl shadow-black/80 transition-all duration-500 group-hover:rotate-[-5deg] group-hover:scale-[1.03]" />
 
@@ -217,8 +217,8 @@ export function HomePage() {
               </Reveal>
 
               {/* Mobile Hero Portrait: Positioned Directly Below Name & Designation on Small Screens */}
-              <div className="flex justify-center py-2 lg:hidden">
-                <Reveal delay={140}>
+              <div className="w-full flex justify-center py-2 lg:hidden">
+                <Reveal delay={140} className="w-full flex justify-center items-center">
                   {heroPhotoCard}
                 </Reveal>
               </div>
@@ -348,7 +348,7 @@ export function HomePage() {
 
             {/* Right Column: Hero Portrait for Desktop (Hidden on mobile, visible on lg+) */}
             <div className="hidden justify-center lg:flex lg:col-span-5">
-              <Reveal delay={150}>
+              <Reveal delay={150} className="w-full flex justify-center items-center">
                 {heroPhotoCard}
               </Reveal>
             </div>
