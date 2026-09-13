@@ -60,9 +60,10 @@ export function AboutPage() {
 
       {/* Hero Intro */}
       <section className="relative overflow-hidden bg-hero-gradient py-20 text-primary-foreground sm:py-28">
-        <div className="pointer-events-none absolute inset-0 opacity-25">
+        <div className="pointer-events-none absolute inset-0 overflow-hidden opacity-35">
+          <div className="grid-lines absolute inset-0 opacity-55" />
           <div className="animate-float-soft absolute -left-20 -top-20 h-96 w-96 rounded-full bg-accent/40 blur-3xl" />
-          <div className="animate-float-slow absolute bottom-0 right-0 h-96 w-96 rounded-full bg-teal-400/20 blur-3xl" />
+          <div className="animate-float-slow absolute bottom-0 right-0 h-96 w-96 rounded-full bg-primary/30 blur-3xl" />
         </div>
 
         <div className="relative mx-auto max-w-[1500px] px-5 sm:px-8 lg:px-14">

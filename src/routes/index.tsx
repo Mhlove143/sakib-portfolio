@@ -137,10 +137,10 @@ export function HomePage() {
       >
         {/* Ambient atmospheric glows and grid lines */}
         <div className="pointer-events-none absolute inset-0 overflow-hidden opacity-35">
-          <div className="grid-lines absolute inset-0 opacity-40" />
+          <div className="grid-lines absolute inset-0 opacity-55 sm:opacity-65" />
           <div className="animate-float-soft absolute -left-24 -top-24 h-[28rem] w-[28rem] rounded-full bg-accent/45 blur-3xl" />
-          <div className="animate-float-slow absolute right-0 top-1/4 h-[32rem] w-[32rem] rounded-full bg-teal-400/25 blur-3xl" />
-          <div className="animate-float-soft absolute -bottom-10 left-1/3 h-96 w-96 rounded-full bg-primary/45 blur-3xl" />
+          <div className="animate-float-slow absolute right-0 top-1/4 h-[32rem] w-[32rem] rounded-full bg-primary/35 blur-3xl" />
+          <div className="animate-float-soft absolute -bottom-10 left-1/3 h-96 w-96 rounded-full bg-accent/45 blur-3xl" />
         </div>
 
         <div className="relative mx-auto max-w-[1500px] px-4 sm:px-8 lg:px-14">
@@ -149,10 +149,10 @@ export function HomePage() {
             <div className="space-y-4 sm:space-y-6 lg:col-span-7">
               {/* Status Badge */}
               <Reveal>
-                <div className="inline-flex items-center gap-2 rounded-full border border-emerald-400/40 bg-emerald-950/70 px-3.5 py-1.5 sm:px-4 sm:py-2 text-[11px] sm:text-xs font-bold uppercase tracking-wider text-emerald-300 shadow-lg backdrop-blur-md">
+                <div className="inline-flex items-center gap-2 rounded-full border border-accent/40 bg-black/40 px-3.5 py-1.5 sm:px-4 sm:py-2 text-[11px] sm:text-xs font-bold uppercase tracking-wider text-accent shadow-lg backdrop-blur-md">
                   <span className="relative flex h-2 w-2 sm:h-2.5 sm:w-2.5">
-                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-80" />
-                    <span className="relative inline-flex h-2 w-2 sm:h-2.5 sm:w-2.5 rounded-full bg-emerald-400" />
+                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent opacity-80" />
+                    <span className="relative inline-flex h-2 w-2 sm:h-2.5 sm:w-2.5 rounded-full bg-accent" />
                   </span>
                   <span className="truncate max-w-[260px] sm:max-w-none">{personalInfo.availability}</span>
                 </div>
@@ -161,13 +161,13 @@ export function HomePage() {
               {/* Headline */}
               <Reveal delay={60}>
                 <h1 className="font-sora text-3xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-white leading-[1.1] sm:leading-[1.08] drop-shadow-sm">
-                  Hi, I'm <span className="text-emerald-400 font-black">{personalInfo.name}</span>
+                  Hi, I'm <span className="text-accent font-black">{personalInfo.name}</span>
                 </h1>
               </Reveal>
 
               {/* Dynamic Typewriter Roles */}
               <Reveal delay={120}>
-                <div className="min-h-[2.2rem] sm:min-h-[2.6rem] font-sora text-lg sm:text-2xl lg:text-3xl font-extrabold text-emerald-300 flex items-center drop-shadow-sm">
+                <div className="min-h-[2.2rem] sm:min-h-[2.6rem] font-sora text-lg sm:text-2xl lg:text-3xl font-extrabold text-accent flex items-center drop-shadow-sm">
                   <Typewriter words={personalInfo.roles} typingSpeed={75} pauseTime={2200} />
                 </div>
               </Reveal>
@@ -183,19 +183,19 @@ export function HomePage() {
               <Reveal delay={220}>
                 <div className="grid grid-cols-1 gap-2 sm:gap-2.5 pt-1 sm:grid-cols-2">
                   <div className="flex items-center gap-2 text-xs font-bold text-white sm:text-sm">
-                    <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-400 sm:h-4.5 sm:w-4.5" />
+                    <CheckCircle2 className="h-4 w-4 shrink-0 text-accent sm:h-4.5 sm:w-4.5" />
                     <span>Full-Stack Architecture (Django + React)</span>
                   </div>
                   <div className="flex items-center gap-2 text-xs font-bold text-white sm:text-sm">
-                    <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-400 sm:h-4.5 sm:w-4.5" />
+                    <CheckCircle2 className="h-4 w-4 shrink-0 text-accent sm:h-4.5 sm:w-4.5" />
                     <span>Bespoke Shopify Themes & Custom Apps</span>
                   </div>
                   <div className="hidden sm:flex items-center gap-2 text-xs font-bold text-white sm:text-sm">
-                    <CheckCircle2 className="h-4.5 w-4.5 shrink-0 text-emerald-400" />
+                    <CheckCircle2 className="h-4.5 w-4.5 shrink-0 text-accent" />
                     <span>Sub-Second Latency & Core Web Vitals (95+)</span>
                   </div>
                   <div className="hidden sm:flex items-center gap-2 text-xs font-bold text-white sm:text-sm">
-                    <CheckCircle2 className="h-4.5 w-4.5 shrink-0 text-emerald-400" />
+                    <CheckCircle2 className="h-4.5 w-4.5 shrink-0 text-accent" />
                     <span>{personalInfo.title}</span>
                   </div>
                 </div>
@@ -206,7 +206,7 @@ export function HomePage() {
                 <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 pt-2">
                   <a
                     href="#contact"
-                    className="btn-shine group flex items-center justify-center gap-2.5 rounded-full bg-emerald-500 px-6 py-3.5 sm:px-8 sm:py-4 font-sora text-xs font-bold uppercase tracking-wider text-slate-950 shadow-xl shadow-emerald-500/30 transition-all duration-300 hover:bg-emerald-400 hover:shadow-2xl hover:shadow-emerald-400/50 active:scale-95 text-center"
+                    className="btn-shine group flex items-center justify-center gap-2.5 rounded-full bg-accent px-6 py-3.5 sm:px-8 sm:py-4 font-sora text-xs font-bold uppercase tracking-wider text-slate-950 shadow-xl shadow-accent/30 transition-all duration-300 hover:opacity-95 hover:shadow-2xl hover:shadow-accent/50 active:scale-95 text-center"
                   >
                     <span>Let's Build Together</span>
                     <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1.5" />
@@ -214,9 +214,9 @@ export function HomePage() {
 
                   <button
                     onClick={() => setResumeOpen(true)}
-                    className="btn-shine flex items-center justify-center gap-2 rounded-full border border-white/30 bg-white/10 px-5 py-3.5 sm:px-6 sm:py-4 font-sora text-xs font-bold uppercase tracking-wider text-white backdrop-blur-md transition-all duration-300 hover:bg-white/20 hover:border-emerald-400 text-center"
+                    className="btn-shine flex items-center justify-center gap-2 rounded-full border border-white/30 bg-white/10 px-5 py-3.5 sm:px-6 sm:py-4 font-sora text-xs font-bold uppercase tracking-wider text-white backdrop-blur-md transition-all duration-300 hover:bg-white/20 hover:border-accent text-center"
                   >
-                    <Download className="h-4 w-4 text-emerald-400" />
+                    <Download className="h-4 w-4 text-accent" />
                     <span>Download Resume (CV)</span>
                   </button>
                 </div>
@@ -299,14 +299,14 @@ export function HomePage() {
             <div className="flex justify-center lg:col-span-5">
               <Reveal delay={150}>
                 <div className="group relative w-full max-w-[19rem] sm:max-w-[27rem] lg:max-w-[29rem] px-2 sm:px-3 py-2 sm:py-3">
-                  {/* Reference Image Background Card: Tilted rounded deep-emerald card */}
-                  <div className="absolute inset-x-2 inset-y-1 rotate-[-3.5deg] rounded-[2rem] sm:rounded-[2.5rem] bg-gradient-to-br from-emerald-800/90 via-teal-900/90 to-slate-950 border-2 border-emerald-400/40 shadow-2xl shadow-emerald-950/80 transition-all duration-500 group-hover:rotate-[-5deg] group-hover:scale-[1.03]" />
+                  {/* Reference Image Background Card: Tilted rounded deep-accent card */}
+                  <div className="absolute inset-x-2 inset-y-1 rotate-[-3.5deg] rounded-[2rem] sm:rounded-[2.5rem] bg-gradient-to-br from-primary/90 via-accent/50 to-slate-950 border-2 border-accent/40 shadow-2xl shadow-black/80 transition-all duration-500 group-hover:rotate-[-5deg] group-hover:scale-[1.03]" />
 
                   {/* Ambient glowing atmosphere behind photo */}
-                  <div className="absolute -inset-2 rounded-[2.4rem] sm:rounded-[2.8rem] bg-gradient-to-tr from-emerald-500/40 via-teal-400/30 to-primary/40 opacity-75 blur-2xl transition-all duration-700 group-hover:opacity-100 group-hover:blur-3xl" />
+                  <div className="absolute -inset-2 rounded-[2.4rem] sm:rounded-[2.8rem] bg-gradient-to-tr from-accent/40 via-primary/30 to-accent/40 opacity-75 blur-2xl transition-all duration-700 group-hover:opacity-100 group-hover:blur-3xl" />
 
                   {/* Main Foreground Card with Photo */}
-                  <div className="relative overflow-hidden rounded-[1.8rem] sm:rounded-[2.2rem] border-2 border-emerald-400/40 bg-slate-950/60 shadow-2xl backdrop-blur-md transition-all duration-500 group-hover:scale-[1.02] group-hover:border-emerald-400/70">
+                  <div className="relative overflow-hidden rounded-[1.8rem] sm:rounded-[2.2rem] border-2 border-accent/40 bg-slate-950/60 shadow-2xl backdrop-blur-md transition-all duration-500 group-hover:scale-[1.02] group-hover:border-accent/70">
                     <img
                       src={activePhoto}
                       alt={`${personalInfo.name} — ${personalInfo.title}`}
@@ -314,16 +314,16 @@ export function HomePage() {
                     />
 
                     {/* Floating Role Badge with Crisp, High-Contrast Typography */}
-                    <div className="absolute bottom-3 sm:bottom-4 left-3 sm:left-4 right-3 sm:right-4 rounded-xl sm:rounded-2xl border border-emerald-400/50 bg-black/85 p-2.5 sm:p-3.5 shadow-2xl backdrop-blur-xl">
+                    <div className="absolute bottom-3 sm:bottom-4 left-3 sm:left-4 right-3 sm:right-4 rounded-xl sm:rounded-2xl border border-accent/50 bg-black/85 p-2.5 sm:p-3.5 shadow-2xl backdrop-blur-xl">
                       <div className="flex items-center gap-2.5 sm:gap-3">
-                        <span className="flex h-8 w-8 sm:h-9 sm:w-9 shrink-0 items-center justify-center rounded-lg sm:rounded-xl bg-emerald-500/20 text-emerald-400 border border-emerald-400/40 shadow-sm">
+                        <span className="flex h-8 w-8 sm:h-9 sm:w-9 shrink-0 items-center justify-center rounded-lg sm:rounded-xl bg-accent/20 text-accent border border-accent/40 shadow-sm">
                           <Briefcase className="h-4 w-4 sm:h-4.5 sm:w-4.5" />
                         </span>
                         <div className="min-w-0 flex-1">
                           <p className="truncate font-sora text-xs font-bold text-white">
                             {experiences[0]?.company || "ScaleUP Ads Agency"}
                           </p>
-                          <p className="truncate text-[11px] sm:text-xs font-bold text-emerald-400">
+                          <p className="truncate text-[11px] sm:text-xs font-bold text-accent">
                             {experiences[0]?.title || personalInfo.title}
                           </p>
                         </div>
@@ -331,8 +331,8 @@ export function HomePage() {
                     </div>
 
                     {/* Floating Experience Badge (Top Right) */}
-                    <div className="animate-float-soft absolute top-3 sm:top-4 right-3 sm:right-4 rounded-lg sm:rounded-xl border border-emerald-400/50 bg-black/85 px-2.5 py-1 sm:px-3.5 sm:py-1.5 shadow-xl backdrop-blur-xl">
-                      <p className="font-sora text-[10px] sm:text-[11px] font-extrabold uppercase tracking-wider text-emerald-400">
+                    <div className="animate-float-soft absolute top-3 sm:top-4 right-3 sm:right-4 rounded-lg sm:rounded-xl border border-accent/50 bg-black/85 px-2.5 py-1 sm:px-3.5 sm:py-1.5 shadow-xl backdrop-blur-xl">
+                      <p className="font-sora text-[10px] sm:text-[11px] font-extrabold uppercase tracking-wider text-accent">
                         {keyMetrics[0] ? `${keyMetrics[0].value} ${keyMetrics[0].suffix} Pro Dev` : "2+ Years Pro Dev"}
                       </p>
                     </div>
@@ -1419,8 +1419,14 @@ export function HomePage() {
       {/* =========================================================================
           CONTACT & LET'S BUILD SECTION (#contact — Interactive Form & Direct Channels)
       ========================================================================== */}
-      <section id="contact" className="py-14 sm:py-28 bg-hero-gradient text-primary-foreground overflow-hidden w-full">
-        <div className="mx-auto w-full max-w-[1500px] px-4 sm:px-8 lg:px-14">
+      <section id="contact" className="relative py-14 sm:py-28 bg-hero-gradient text-primary-foreground overflow-hidden w-full">
+        {/* Ambient atmospheric glows and grid lines */}
+        <div className="pointer-events-none absolute inset-0 overflow-hidden opacity-35">
+          <div className="grid-lines absolute inset-0 opacity-55" />
+          <div className="animate-float-soft absolute -left-20 -top-20 h-96 w-96 rounded-full bg-accent/40 blur-3xl" />
+          <div className="animate-float-slow absolute bottom-0 right-0 h-96 w-96 rounded-full bg-primary/40 blur-3xl" />
+        </div>
+        <div className="relative mx-auto w-full max-w-[1500px] px-4 sm:px-8 lg:px-14">
           <div className="grid gap-8 sm:gap-12 lg:grid-cols-12 lg:items-center">
             {/* Left Narrative */}
             <div className="space-y-4 sm:space-y-5 lg:col-span-5">

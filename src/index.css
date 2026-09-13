@@ -59,6 +59,7 @@
   --color-hero-gradient-start: var(--hero-gradient-start);
   --color-hero-gradient-end: var(--hero-gradient-end);
   --color-section-alt: var(--section-alt);
+  --color-hero-grid-line: var(--hero-grid-line);
 }
 
 :root {
@@ -114,6 +115,7 @@
   /* Portfolio-specific tokens */
   --hero-gradient-start: oklch(0.42 0.12 175);
   --hero-gradient-end: oklch(0.35 0.1 205);
+  --hero-grid-line: oklch(0.86 0.08 175);
   --section-alt: oklch(0.97 0.012 180);
 }
 
@@ -165,6 +167,7 @@
 
   --hero-gradient-start: oklch(0.35 0.1 175);
   --hero-gradient-end: oklch(0.25 0.09 205);
+  --hero-grid-line: oklch(0.84 0.12 170);
   --section-alt: oklch(0.16 0.04 200);
 }
 
@@ -216,6 +219,7 @@
 
   --hero-gradient-start: oklch(0.36 0.16 285);
   --hero-gradient-end: oklch(0.26 0.12 315);
+  --hero-grid-line: oklch(0.86 0.18 285);
   --section-alt: oklch(0.16 0.04 285);
 }
 
@@ -267,6 +271,7 @@
 
   --hero-gradient-start: oklch(0.38 0.13 55);
   --hero-gradient-end: oklch(0.27 0.10 35);
+  --hero-grid-line: oklch(0.86 0.15 55);
   --section-alt: oklch(0.16 0.025 55);
 }
 
@@ -566,16 +571,17 @@
   .grid-lines {
     background-image:
       linear-gradient(
-        color-mix(in oklab, var(--color-border) 65%, transparent) 1px,
+        color-mix(in oklab, var(--hero-grid-line, var(--color-border)) 65%, transparent) 1px,
         transparent 1px
       ),
       linear-gradient(
         90deg,
-        color-mix(in oklab, var(--color-border) 65%, transparent) 1px,
+        color-mix(in oklab, var(--hero-grid-line, var(--color-border)) 65%, transparent) 1px,
         transparent 1px
       );
     background-size: 64px 64px;
-    mask-image: radial-gradient(ellipse at center, #000 0%, transparent 78%);
+    mask-image: radial-gradient(ellipse at center, #000 20%, transparent 85%);
+    -webkit-mask-image: radial-gradient(ellipse at center, #000 20%, transparent 85%);
   }
 }
 
