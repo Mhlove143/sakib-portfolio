@@ -370,36 +370,32 @@ export function Navbar() {
             </span>
           </div>
 
-          {/* 4 Cards: Theme, Admin, CV, Message */}
+          {/* 4 Action Buttons: Only Logos/Icons and Links (Names Hidden) */}
           <div className="grid grid-cols-4 gap-2">
             {/* Theme */}
             <button
               type="button"
               onClick={() => setDrawerThemePickerOpen((prev) => !prev)}
-              className={`flex flex-col items-center justify-center gap-1.5 rounded-2xl border p-2 text-center transition-all active:scale-95 ${
+              className={`flex h-11 items-center justify-center rounded-2xl border transition-all active:scale-95 ${
                 drawerThemePickerOpen
-                  ? "border-accent bg-accent/15 text-accent shadow-sm"
+                  ? "border-accent bg-accent/20 text-accent shadow-sm"
                   : "border-border/80 bg-card text-foreground hover:border-accent hover:text-accent shadow-sm"
               }`}
-              title="Change Theme"
+              title="Theme Colors"
+              aria-label="Theme Colors"
             >
-              <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-accent/15 text-accent">
-                <Moon className="h-4 w-4" />
-              </div>
-              <span className="text-[10px] font-bold tracking-tight">Theme</span>
+              <Moon className="h-5 w-5 text-accent" />
             </button>
 
             {/* Admin */}
             <Link
               to="/admin"
               onClick={() => setMobileMenuOpen(false)}
-              className="flex flex-col items-center justify-center gap-1.5 rounded-2xl border border-border/80 bg-card p-2 text-center text-foreground transition-all hover:border-accent hover:text-accent active:scale-95 shadow-sm"
+              className="flex h-11 items-center justify-center rounded-2xl border border-border/80 bg-card text-foreground transition-all hover:border-accent hover:text-accent active:scale-95 shadow-sm"
               title="Admin CMS Dashboard"
+              aria-label="Admin CMS Dashboard"
             >
-              <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-accent/15 text-accent">
-                <ShieldCheck className="h-4 w-4" />
-              </div>
-              <span className="text-[10px] font-bold tracking-tight">Admin</span>
+              <ShieldCheck className="h-5 w-5 text-accent" />
             </Link>
 
             {/* CV */}
@@ -409,13 +405,11 @@ export function Navbar() {
                 setMobileMenuOpen(false);
                 setResumeOpen(true);
               }}
-              className="flex flex-col items-center justify-center gap-1.5 rounded-2xl border border-border/80 bg-card p-2 text-center text-foreground transition-all hover:border-accent hover:text-accent active:scale-95 shadow-sm"
-              title="Download CV"
+              className="flex h-11 items-center justify-center rounded-2xl border border-border/80 bg-card text-foreground transition-all hover:border-accent hover:text-accent active:scale-95 shadow-sm"
+              title="Download Resume / CV"
+              aria-label="Download Resume / CV"
             >
-              <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-accent/15 text-accent">
-                <FileText className="h-4 w-4" />
-              </div>
-              <span className="text-[10px] font-bold tracking-tight">CV</span>
+              <FileText className="h-5 w-5 text-accent" />
             </button>
 
             {/* Message */}
@@ -423,13 +417,11 @@ export function Navbar() {
               href={personalInfo.whatsappUrl}
               target="_blank"
               rel="noreferrer"
-              className="flex flex-col items-center justify-center gap-1.5 rounded-2xl border border-border/80 bg-card p-2 text-center text-foreground transition-all hover:border-emerald-500 hover:text-emerald-500 active:scale-95 shadow-sm"
+              className="flex h-11 items-center justify-center rounded-2xl border border-border/80 bg-card text-foreground transition-all hover:border-emerald-500 hover:text-emerald-500 active:scale-95 shadow-sm"
               title="Direct WhatsApp Message"
+              aria-label="Direct WhatsApp Message"
             >
-              <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-emerald-500/15 text-emerald-500">
-                <MessageSquare className="h-4 w-4" />
-              </div>
-              <span className="text-[10px] font-bold tracking-tight">Message</span>
+              <MessageSquare className="h-5 w-5 text-emerald-500" />
             </a>
           </div>
 
