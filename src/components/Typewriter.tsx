@@ -20,14 +20,29 @@ export function Typewriter({
   pauseTime,
 }: TypewriterProps) {
   const actualPause = pauseTime ?? pauseMs;
+  const safeWords =
+    Array.isArray(words) && words.length > 0
+      ? words.map((w) => (typeof w === "string" ? w.trim() : "")).filter(Boolean)
+      : ["Full-Stack Web Architect"];
+  const finalWords = safeWords.length > 0 ? safeWords : ["Full-Stack Web Architect"];
+
   const [index, setIndex] = useState(0);
   const [text, setText] = useState("");
   const [deleting, setDeleting] = useState(false);
   const [idle, setIdle] = useState(false);
   const jitter = useRef(0);
 
+  // Reset typewriter when the list of words changes
+  const wordsKey = JSON.stringify(finalWords);
   useEffect(() => {
-    const current = words[index % words.length] ?? "";
+    setIndex(0);
+    setText("");
+    setDeleting(false);
+    setIdle(false);
+  }, [wordsKey]);
+
+  useEffect(() => {
+    const current = finalWords[index % finalWords.length] ?? "";
 
     // Full word completed: pause before deleting
     if (!deleting && text === current) {
@@ -45,7 +60,7 @@ export function Typewriter({
       const timeout = setTimeout(() => {
         setIdle(false);
         setDeleting(false);
-        setIndex((i) => (i + 1) % words.length);
+        setIndex((i) => (i + 1) % finalWords.length);
       }, 360);
       return () => clearTimeout(timeout);
     }
@@ -66,12 +81,12 @@ export function Typewriter({
     }, delay);
 
     return () => clearTimeout(timeout);
-  }, [text, deleting, index, words, typingSpeed, deletingSpeed, actualPause]);
+  }, [text, deleting, index, finalWords, typingSpeed, deletingSpeed, actualPause]);
 
   return (
     <span
       className={cn("inline-flex items-center font-sora font-bold tracking-tight", className)}
-      aria-label={words.join(", ")}
+      aria-label={finalWords.join(", ")}
     >
       <span
         aria-hidden

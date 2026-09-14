@@ -45,13 +45,17 @@ import {
   Moon,
   Palette,
   Check,
+  ChevronUp,
+  ChevronDown,
 } from "lucide-react";
 import portraitAsset from "@/assets/sakib-portrait.png.asset.json";
 import { usePortfolio } from "@/context/PortfolioContext";
 import { useTheme } from "@/context/ThemeContext";
 import { AdminSettingsModal } from "@/components/admin/AdminSettingsModal";
+import { Typewriter } from "@/components/Typewriter";
 import { toast } from "sonner";
 import {
+  personalInfo as defaultPersonalInfo,
   type Service,
   type Experience,
   type Project,
@@ -230,17 +234,91 @@ export function AdminPage() {
   };
 
   // Profile Form State
-  const [profileForm, setProfileForm] = useState(personalInfo);
+  const [profileForm, setProfileForm] = useState(() => ({
+    ...personalInfo,
+    roles:
+      Array.isArray(personalInfo.roles) && personalInfo.roles.length > 0
+        ? personalInfo.roles
+        : defaultPersonalInfo.roles,
+  }));
 
   // Sync profile form if personalInfo changes
   useEffect(() => {
-    setProfileForm(personalInfo);
+    setProfileForm({
+      ...personalInfo,
+      roles:
+        Array.isArray(personalInfo.roles) && personalInfo.roles.length > 0
+          ? personalInfo.roles
+          : defaultPersonalInfo.roles,
+    });
   }, [personalInfo]);
+
+  // Handlers for Animated Roles / Designations (Typewriter on Hero)
+  const handleAddRole = () => {
+    const currentRoles = Array.isArray(profileForm.roles) ? [...profileForm.roles] : [];
+    setProfileForm({
+      ...profileForm,
+      roles: [...currentRoles, ""],
+    });
+  };
+
+  const handleUpdateRole = (index: number, val: string) => {
+    const currentRoles = Array.isArray(profileForm.roles) ? [...profileForm.roles] : [];
+    currentRoles[index] = val;
+    setProfileForm({
+      ...profileForm,
+      roles: currentRoles,
+    });
+  };
+
+  const handleDeleteRole = (index: number) => {
+    const currentRoles = Array.isArray(profileForm.roles) ? [...profileForm.roles] : [];
+    if (currentRoles.length <= 1) {
+      toast.warning("You must keep at least one role for the animated designation.");
+      return;
+    }
+    const updated = currentRoles.filter((_, i) => i !== index);
+    setProfileForm({
+      ...profileForm,
+      roles: updated,
+    });
+  };
+
+  const handleMoveRole = (index: number, direction: "up" | "down") => {
+    const currentRoles = Array.isArray(profileForm.roles) ? [...profileForm.roles] : [];
+    const targetIndex = direction === "up" ? index - 1 : index + 1;
+    if (targetIndex < 0 || targetIndex >= currentRoles.length) return;
+    const temp = currentRoles[index];
+    currentRoles[index] = currentRoles[targetIndex];
+    currentRoles[targetIndex] = temp;
+    setProfileForm({
+      ...profileForm,
+      roles: currentRoles,
+    });
+  };
+
+  const handleResetRolesToDefault = () => {
+    setProfileForm({
+      ...profileForm,
+      roles: [...defaultPersonalInfo.roles],
+    });
+    toast.info("Hero animated designations reset to defaults. Click 'Save Changes' to save.");
+  };
 
   const handleProfileSave = (e: FormEvent) => {
     e.preventDefault();
-    updatePersonalInfo(profileForm);
-    toast.success("Profile information updated successfully!");
+    const cleanedRoles = (profileForm.roles || [])
+      .map((r) => r.trim())
+      .filter((r) => r.length > 0);
+    const finalRoles = cleanedRoles.length > 0 ? cleanedRoles : defaultPersonalInfo.roles;
+
+    const payload = {
+      ...profileForm,
+      roles: finalRoles,
+    };
+    updatePersonalInfo(payload);
+    setProfileForm(payload);
+    toast.success("Profile information & Animated Designations updated successfully!");
   };
 
   // Profile Image Upload & Resize Handler
@@ -1780,6 +1858,123 @@ export function AdminPage() {
                     onChange={(e) => setProfileForm({ ...profileForm, linkedin: e.target.value })}
                     className="mt-1.5 w-full rounded-xl border border-border/80 bg-muted/30 px-3.5 py-2.5 text-sm font-medium text-foreground focus:border-accent focus:outline-none"
                   />
+                </div>
+
+                {/* Hero Animated Designations (Typewriter Effect) */}
+                <div className="sm:col-span-2 lg:col-span-3 rounded-2xl border-2 border-accent/40 bg-accent/5 p-4 sm:p-5 space-y-4 shadow-sm">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-accent/20 pb-3">
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <Sparkles className="h-4 w-4 text-accent" />
+                        <h3 className="font-sora text-sm sm:text-base font-bold text-foreground">
+                          Hero Animated Designations (Typewriter Effect)
+                        </h3>
+                        <span className="rounded-full bg-accent/20 px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wider text-accent">
+                          Hero Subtitle
+                        </span>
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        These designations animate one-by-one under your name on the homepage Hero section. You can add, edit, reorder, or remove any role here.
+                      </p>
+                    </div>
+
+                    <div className="flex items-center gap-2 shrink-0">
+                      <button
+                        type="button"
+                        onClick={handleAddRole}
+                        className="btn-shine inline-flex items-center gap-1.5 rounded-xl bg-accent px-3 py-1.5 font-sora text-xs font-bold text-slate-950 shadow-sm transition-all hover:bg-accent/90 active:scale-95"
+                      >
+                        <Plus className="h-3.5 w-3.5" />
+                        <span>Add Designation</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleResetRolesToDefault}
+                        className="inline-flex items-center gap-1 rounded-xl border border-border/80 bg-card px-2.5 py-1.5 text-[11px] font-semibold text-muted-foreground hover:text-foreground active:scale-95"
+                        title="Reset to default designations"
+                      >
+                        <RotateCcw className="h-3 w-3" />
+                        <span>Reset</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Live Hero Typewriter Preview */}
+                  <div className="flex items-center gap-3 rounded-xl border border-accent/20 bg-background/80 px-4 py-2.5 shadow-inner">
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground shrink-0 flex items-center gap-1">
+                      <Eye className="h-3.5 w-3.5 text-accent" />
+                      Live Typing Preview:
+                    </span>
+                    <div className="font-sora text-xs sm:text-sm font-extrabold text-accent min-h-[1.4rem] flex items-center truncate">
+                      <Typewriter
+                        words={
+                          profileForm.roles && profileForm.roles.length > 0
+                            ? profileForm.roles.filter(Boolean)
+                            : ["Full-Stack Web Architect"]
+                        }
+                        typingSpeed={65}
+                        pauseTime={1800}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Role List with sequence, inputs, move up/down and delete */}
+                  <div className="space-y-2">
+                    {(profileForm.roles || []).map((role, idx) => (
+                      <div
+                        key={idx}
+                        className="flex items-center gap-2 rounded-xl border border-border/70 bg-card p-2 shadow-sm transition-all hover:border-accent/50"
+                      >
+                        <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-muted text-[11px] font-black text-muted-foreground">
+                          {idx + 1}
+                        </div>
+
+                        <input
+                          type="text"
+                          value={role}
+                          onChange={(e) => handleUpdateRole(idx, e.target.value)}
+                          placeholder="e.g. Full-Stack Web Architect (Django & React.js)"
+                          className="flex-1 rounded-lg border border-border/80 bg-muted/20 px-3 py-1.5 text-xs sm:text-sm font-semibold text-foreground focus:border-accent focus:outline-none"
+                        />
+
+                        {/* Move Up */}
+                        <button
+                          type="button"
+                          onClick={() => handleMoveRole(idx, "up")}
+                          disabled={idx === 0}
+                          className="flex h-7 w-7 items-center justify-center rounded-lg border border-border/60 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:opacity-30"
+                          title="Move up"
+                          aria-label="Move up"
+                        >
+                          <ChevronUp className="h-3.5 w-3.5" />
+                        </button>
+
+                        {/* Move Down */}
+                        <button
+                          type="button"
+                          onClick={() => handleMoveRole(idx, "down")}
+                          disabled={idx === (profileForm.roles || []).length - 1}
+                          className="flex h-7 w-7 items-center justify-center rounded-lg border border-border/60 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:opacity-30"
+                          title="Move down"
+                          aria-label="Move down"
+                        >
+                          <ChevronDown className="h-3.5 w-3.5" />
+                        </button>
+
+                        {/* Delete */}
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteRole(idx)}
+                          disabled={(profileForm.roles || []).length <= 1}
+                          className="flex h-7 w-7 items-center justify-center rounded-lg border border-red-500/20 text-red-500 transition-colors hover:bg-red-500/10 disabled:opacity-30"
+                          title="Delete designation"
+                          aria-label="Delete designation"
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
                 </div>
 
                 <div className="sm:col-span-2 lg:col-span-3">

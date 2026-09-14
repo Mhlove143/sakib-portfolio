@@ -212,7 +212,15 @@ export function HomePage() {
               {/* Dynamic Typewriter Roles */}
               <Reveal delay={120}>
                 <div className="min-h-[2.2rem] sm:min-h-[2.6rem] font-sora text-lg sm:text-2xl lg:text-3xl font-extrabold text-accent flex items-center drop-shadow-sm">
-                  <Typewriter words={personalInfo.roles} typingSpeed={75} pauseTime={2200} />
+                  <Typewriter
+                    words={
+                      Array.isArray(personalInfo.roles) && personalInfo.roles.length > 0
+                        ? personalInfo.roles
+                        : [personalInfo.title || "Full-Stack Web Architect"]
+                    }
+                    typingSpeed={75}
+                    pauseTime={2200}
+                  />
                 </div>
               </Reveal>
 

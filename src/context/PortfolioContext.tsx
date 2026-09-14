@@ -366,10 +366,23 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
         if (docSnap.exists()) {
           const cloudData = docSnap.data();
           setData((prev) => {
+            const rawRoles = cloudData.personalInfo?.roles;
+            let resolvedRoles: string[] =
+              prev.personalInfo.roles && prev.personalInfo.roles.length > 0
+                ? prev.personalInfo.roles
+                : defaultPersonalInfo.roles;
+
+            if (Array.isArray(rawRoles) && rawRoles.length > 0) {
+              resolvedRoles = rawRoles;
+            } else if (typeof rawRoles === "string" && rawRoles.trim().length > 0) {
+              resolvedRoles = rawRoles.split("\n").map((r: string) => r.trim()).filter(Boolean);
+            }
+
             const merged: PortfolioDataType = {
               personalInfo: {
                 ...prev.personalInfo,
                 ...(cloudData.personalInfo || {}),
+                roles: resolvedRoles,
                 // Keep photos & CV from local/specific docs if already loaded
                 customCvDataUri: prev.personalInfo.customCvDataUri,
                 customCvFileName: prev.personalInfo.customCvFileName,
